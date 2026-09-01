@@ -15,9 +15,8 @@ deterministic jitter (10 ps) and overdrive/slew-rate dispersion (quote 15–25 p
 from the relevant ADCMP580 table row) are not that 200 fs figure and can be
 comparable to the 20 ps system target.
 
-LTspice workflow exists under `spice/adcmp580/` with **no results** until the
-owner places the official model and runs it. Class 4 evidence is empty until
-then.
+LTspice workflow: `python scripts/ltspice/run_adcmp580.py`. Successful output is
+**SPICE/front-end simulation**, not laboratory data.
 
 The design-space figure contours 5, 10, and 15 ps RMS allocations versus input
 noise and slew. Those allocations are budgets to be negotiated with the TDC and

@@ -7,7 +7,7 @@ Project status: **TRL 2**. Not TRL 3. No laboratory validation.
 | 1 literature evidence | Yes — bibliography and claims register |
 | 2 model-based simulation | Yes — `python -m tidl_poc sim --fast` |
 | 3 RTL/synthesis/implementation | Scaffolding only; no timing/utilization numbers |
-| 4 SPICE / front-end simulation | Workflow documented (`spice/`); no LTspice results |
+| 4 SPICE / front-end simulation | Workflow + runner; results only after local LTspice batch |
 | 5 physical POC measurement | No |
 
 ## What the models support (carefully)

@@ -34,7 +34,7 @@ and maintainability evidence, design target ≥10 years full-time operation.
 | Proposed subsystem/technique | 50 ohm terminated analog front-end to SMA female. |
 | Literature support | Standard RF practice; no TDC paper substitutes for a front-end design. |
 | Current simulation evidence | Front-end jitter model is voltage-noise/slew, not S11. ADCMP580 is a datasheet candidate with on-chip 50 ohm inputs (external component evidence). |
-| Current gap | No schematic, no LTspice results, no TDR. |
+| Current gap | No S11/TDR. ADCMP580 SPICE is comparator timing, not inlet impedance. |
 | POC validation method | S11 / return-loss and TDR at the 10 MHz inlet. |
 | Pass/fail acceptance criterion | TBD (target 50 ohm system; numeric VSWR limit not yet set). |
 
@@ -77,8 +77,8 @@ and maintainability evidence, design target ≥10 years full-time operation.
 | --- | --- |
 | Proposed subsystem/technique | 50 ohm SMA female per channel. |
 | Literature support | RF practice. |
-| Current simulation evidence | Front-end jitter uses slew and voltage noise, not impedance. ADCMP580 datasheet: on-chip 50 ohm at both inputs (external component evidence). |
-| Current gap | No LTspice results; CML-to-Kintex-7 interface not designed. |
+| Current simulation evidence | Front-end jitter uses slew and voltage noise, not impedance. ADCMP580 datasheet: on-chip 50 ohm at both inputs. Local LTspice characterization: `scripts/ltspice/run_adcmp580.py` (SPICE/front-end simulation). |
+| Current gap | No laboratory 1 PPS edge. CML-to-Kintex-7 not in the SPICE bench. Challenge amplitude/rise unspecified. |
 | POC validation method | S11 / TDR per channel. |
 | Pass/fail acceptance criterion | TBD. |
 

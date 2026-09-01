@@ -36,7 +36,7 @@ Assumptions are not measurements. Each simulation tags parameters as
 | A14 | First-order `delta_t = y * tau` for 5/10/20 ps at 1 s | reference-stability | Replace with ADEV/MDEV/TDEV on measured 10 MHz |
 | A15 | 0.525 ps/°C channel-offset TC from Kwiatkowski 2023 used as an extra literature scenario | pvt / mswu-literature | Do not treat as this board; do not interpolate recalibration between temperatures |
 | A16 | Paper per-channel FIFOs / 21.5 BRAM can be reduced at 16 events/s | low-rate datapath | Hypothesis only; needs Vivado. Do not invent a final BRAM number |
-| A17 | CML-to-Kintex-7 from ADCMP580 is feasible | frontend candidate | Must be designed and verified; no evidence yet |
+| A17 | CML-to-Kintex-7 from ADCMP580 is feasible | frontend candidate | Must be designed and verified; see cml-to-kintex7-interface-options.md; no path selected |
 
 ## Explicitly not assumed
 
@@ -46,3 +46,4 @@ Assumptions are not measurements. Each simulation tags parameters as
 - MSWU-B will win after the first Vivado branch.
 - A behavioural SystemVerilog delay line is a 1 ps TDC.
 - Naive 16-channel BRAM overflow proves 16 channels cannot fit.
+- Direct ADCMP580 CML into Kintex-7 LVDS meets DS182 VICM without a translator.

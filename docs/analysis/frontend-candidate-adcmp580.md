@@ -30,7 +30,7 @@ It is **not** claimed to close the 20 ps system budget.
 | Output rise/fall | 37 ps typical | Datasheet |
 | Random jitter | 200 fs RMS | Datasheet; do not mix with DJ/dispersion |
 | Deterministic jitter | 10 ps | Datasheet; separate from random jitter |
-| Overdrive / slew-rate dispersion | roughly 15 ps to 25 ps depending on which datasheet table row is quoted | Keep the table context; **do not** collapse into the 200 fs RMS figure |
+| Overdrive / slew-rate dispersion | detailed <25 ps over 5 mV–500 mV and 1–10 V/ns; overview typical <15 ps | Keep both; **do not** collapse into 200 fs RMS |
 | Input range | −2 V to +3 V | With ±5 V supplies |
 | Input termination | on-chip 50 ohm at both inputs | Datasheet |
 | PSRR | >70 dB | Datasheet |
@@ -45,10 +45,11 @@ It is **not** claimed to close the 20 ps system budget.
   termination). No interface evidence exists here.
 - Challenge 1 PPS amplitude, rise time, and threshold remain unspecified.
   Do not assume a challenge waveform.
-- No compliance claim. No SPICE result until the owner runs LTspice and the
-  output is classified as SPICE/front-end simulation.
+- No compliance claim. Local LTspice is SPICE/front-end simulation only
+  ([frontend-adcmp580-spice.md](frontend-adcmp580-spice.md)).
 
-Workflow (no schematic committed yet): [../../spice/adcmp580/README.md](../../spice/adcmp580/README.md).
+Workflow: [../../spice/adcmp580/README.md](../../spice/adcmp580/README.md).
+SPICE analysis: [frontend-adcmp580-spice.md](frontend-adcmp580-spice.md).
 
 ## ADCMP572 datasheet-level comparison (not a required LTspice model)
 

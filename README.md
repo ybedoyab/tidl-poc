@@ -26,9 +26,9 @@ Every numerical result must be one of:
 5. physical POC measurement
 
 At this stage, classes 1–2 exist. Class 3 is scaffolding only (no timing
-closure or utilization numbers). Class 4 has a documented LTspice workflow and
-**no results**. Class 5 does not exist. Simulations are never physical
-measurements.
+closure or utilization numbers). Class 4 is an LTspice workflow plus local
+batch results when `scripts/ltspice/run_adcmp580.py` succeeds (SPICE/front-end
+simulation, not lab data). Class 5 does not exist.
 
 Claims tracking: [docs/competition/claims-register.md](docs/competition/claims-register.md).
 Requirement matrix: [docs/requirements/S1-S16-evidence-matrix.md](docs/requirements/S1-S16-evidence-matrix.md).
@@ -101,7 +101,7 @@ Vivado is not required for CI. Tcl under `scripts/vivado/` is preparation only.
 - `references/` bibliography (no paywalled PDFs)
 - `simulations/` experiment entry points
 - `src/tidl_poc/` models and CLI
-- `spice/` LTspice workflow only (no results until the owner runs LTspice)
+- `spice/` LTspice testbench + runner (results under gitignored `outputs/spice_adcmp580/`)
 - `rtl/` SystemVerilog scaffolding
 - `tb/` arithmetic/protocol testbenches
 - `constraints/` family folders (no fake timing numbers)
