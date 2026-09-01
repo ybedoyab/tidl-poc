@@ -25,7 +25,8 @@ TDC SSP uses the Mao-fitted model (N=10 / N=1 / N=8 depending on scenario).
 4. **target_allocation** — labelled design allocation: frontend 5 ps, time-walk
    bias 3 ps, 8-chain literature-fitted TDC, coarse/reference 4 ps, channel
    random 4 ps, calibration random 3 ps, PVT random 4 ps, supply 2 ps, clock
-   distribution 3 ps, common-mode 2 ps. **Not evidence.**
+   distribution 3 ps, common-mode 2 ps. **Not evidence.** Kwiatkowski 2023 MSWU
+   resolution/precision numbers are **not** substituted into this table.
 
 If a submission quotes only scenario 1 or 4, that is incomplete.
 

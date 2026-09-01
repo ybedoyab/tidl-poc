@@ -33,6 +33,10 @@ RAMP_RATE_C_PER_S = 0.05  # assumption: 0.05 C/s enclosure ramp
 CONTINUOUS_LAG_S = 0.2  # assumption: online cal lag
 NOMINAL_BIN_PS = 10.0  # illustrative uncalibrated mean bin; not FPGA LSB
 STEP_TIME_S = 100.0
+# Kwiatkowski et al. 2023: 21 ps channel offset over 0-40 C => 0.525 ps/C.
+# Literature evidence only; not this board.
+KWIATKOWSKI_OFFSET_TC_PS_PER_C = 0.525
+KWIATKOWSKI_OFFSET_SPAN_0_40C_PS = 21.0
 
 
 def modeled_drift_ps(
@@ -266,6 +270,24 @@ def run(seed: int = DEFAULT_SEED, fast: bool = True) -> dict:
     ]
 
     worst = float(df["worst_abs_ps"].max())
+    kwiat_uncomp_10_40 = KWIATKOWSKI_OFFSET_TC_PS_PER_C * (T_MAX_C - T_MIN_C)
+    kwiat_rows = pd.DataFrame(
+        [
+            {
+                "temp_c": t,
+                "uncompensated_offset_vs_tref_ps": KWIATKOWSKI_OFFSET_TC_PS_PER_C * (t - T_REF_C),
+                "after_temperature_specific_recalibration_ps": 0.0,
+                "source": (
+                    "literature evidence — Kwiatkowski et al. 2023, "
+                    "DOI 10.1016/j.measurement.2023.112510"
+                ),
+                "result_classification": "model-based simulation",
+            }
+            for t in (T_MIN_C, T_REF_C, T_MAX_C)
+        ]
+    )
+    kwiat_rows.to_csv(out / "kwiatkowski_offset_anchor.csv", index=False)
+
     extra = {
         "worst_abs_residual_ps_over_sweep": worst,
         "static_periodic_max_worst_abs_ps": float(static_periodic["worst_abs_ps"].max()),
@@ -273,6 +295,13 @@ def run(seed: int = DEFAULT_SEED, fast: bool = True) -> dict:
             str(int(row.cal_interval_s)): {"worst_abs_ps": row.worst_abs_ps, "rms_ps": row.rms_ps}
             for row in ramp_periodic.itertuples(index=False)
         },
+        "kwiatkowski_offset_tc_ps_per_c": KWIATKOWSKI_OFFSET_TC_PS_PER_C,
+        "kwiatkowski_uncompensated_10_to_40C_ps": kwiat_uncomp_10_40,
+        "kwiatkowski_temp_specific_recal_residual_ps": 0.0,
+        "kwiatkowski_temp_specific_recal_note": (
+            "paper: temperature-specific recalibration kept split-signal interval "
+            "precision <3 ps over 0-40 C; no interpolation invented here"
+        ),
     }
     params = {
         "t_min_c": T_MIN_C,
@@ -280,6 +309,8 @@ def run(seed: int = DEFAULT_SEED, fast: bool = True) -> dict:
         "t_ref_c": T_REF_C,
         "mao_resolution_tc_ps_per_c": MAO_RESOLUTION_TC_PS_PER_C,
         "mao_resolution_tc_note": "literature resolution TC; not used as residual error coefficient",
+        "kwiatkowski_offset_tc_ps_per_c": KWIATKOWSKI_OFFSET_TC_PS_PER_C,
+        "kwiatkowski_offset_tc_note": "literature channel-offset TC; additional scenario, not our board",
         "offset_tc_sweep_ps_per_c": list(OFFSET_TC_SWEEP_PS_PER_C),
         "bin_scale_tc_sweep_per_c": list(BIN_SCALE_TC_SWEEP_PER_C),
         "ramp_rate_c_per_s": RAMP_RATE_C_PER_S,
@@ -289,6 +320,7 @@ def run(seed: int = DEFAULT_SEED, fast: bool = True) -> dict:
         "parameter_provenance": {
             "operating_range": "requirement 10-40 C",
             "mao_resolution_tc": "literature (resolution only)",
+            "kwiatkowski_offset_tc": "literature (channel offset 0-40 C)",
             "offset_and_bin_sweeps": "engineering allocation / assumption sweep",
             "ramp_rate": "engineering allocation",
         },
@@ -314,6 +346,11 @@ do not.
 
 Mao 2022 resolution TC = {MAO_RESOLUTION_TC_PS_PER_C} ps/C is literature and is
 **not** the residual used here.
+
+Kwiatkowski 2023 channel-offset TC = {KWIATKOWSKI_OFFSET_TC_PS_PER_C} ps/C
+(literature; 21 ps over 0-40 C). Uncompensated 10-40 C movement =
+{kwiat_uncomp_10_40:.3f} ps. Temperature-specific recalibration residual in this
+file is 0 ps at each static temperature (no interpolation).
 
 Worst |residual| over the assumption sweep: {worst:.3f} ps.
 Static + periodic max worst-|r| (should be ~0): {extra["static_periodic_max_worst_abs_ps"]:.6f} ps.

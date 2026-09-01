@@ -126,9 +126,11 @@
   title   = {Subpicosecond resolution time interval counter with multisampling wave union type {B} {TDCs} in 28 nm {FPGA} device},
   journal = {Measurement},
   year    = {2023},
+  volume  = {209},
+  pages   = {112510},
   doi     = {10.1016/j.measurement.2023.112510},
   url     = {https://doi.org/10.1016/j.measurement.2023.112510},
-  note    = {Literature evidence that Wave Union type B plus multisampling can reach sub-picosecond quoted resolution on 28 nm FPGA. High placement/calibration complexity. Not reproduced here.},
+  note    = {Literature evidence only; not reproduced in this repository. Implementation reported on Xilinx Kintex-7 XC7K160 with a 710 MHz main clock derived from a 10 MHz TCXO via a frequency synthesizer. Fine timing is MSWU type B used as a timestamp interpolator (TS = N*Tclk - Tfine). Manual placement and routing were crucial; the authors operated at or beyond some manufacturer-recommended timing usage (implementation risk, not a recommended default). Tracked numerical claims are in the claims register. Do not commit the publisher PDF.},
 }
 
 @article{Lusardi2019Subinterpolation,
@@ -169,4 +171,18 @@
   number       = {IEEE Std 1139},
   url          = {https://standards.ieee.org/ieee/1139/},
   note         = {Standards reference for time/frequency stability definitions. Confirm the edition used in any submission (2008 vs 2022). No local ADEV results exist yet.},
+}
+
+@misc{ADCMP580DS,
+  author       = {{Analog Devices}},
+  title        = {{ADCMP580}/{ADCMP581}/{ADCMP582} Ultrafast {SiGe} Voltage Comparators, datasheet Rev. B},
+  url          = {https://www.analog.com/en/products/adcmp580.html},
+  note         = {External component evidence. Product page states the device is in production and that an LTspice model is available. Datasheet facts tracked in docs/analysis/frontend-candidate-adcmp580.md. Not this project's measurement. Do not commit the PDF.},
+}
+
+@misc{ADCMP572DS,
+  author       = {{Analog Devices}},
+  title        = {{ADCMP572}/{ADCMP573} Ultrafast {SiGe} Voltage Comparators (datasheet)},
+  url          = {https://www.analog.com/en/products/adcmp572.html},
+  note         = {External component evidence for datasheet-level comparison only. An LTspice model is not required for this candidate. Not this project's measurement. Do not commit the PDF.},
 }

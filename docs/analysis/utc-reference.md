@@ -22,3 +22,8 @@ NIST SP 1065 and IEEE 1139. This repository has no ADEV dataset.
 
 POC: qualify 10 MHz at the FPGA, align 1 PPS, log flags, and only then assign a
 numeric UTC error budget that still leaves room for the TDC and front-end.
+
+Kwiatkowski et al. 2023: for intervals longer than hundreds of microseconds
+their TCXO stability, not the counter, dominated precision. Qualitative
+literature only; see [reference-stability.md](reference-stability.md). No ADEV
+is derived from that statement.

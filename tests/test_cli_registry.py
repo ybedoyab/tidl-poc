@@ -13,5 +13,6 @@ def test_all_planned_simulations_registered():
         "reference-clock",
         "reference-stability",
         "packet-logging",
+        "mswu-literature",
     }
     assert expected == set(SIMULATIONS)

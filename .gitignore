@@ -22,6 +22,14 @@ outputs/*
 # Local papers (keep .gitkeep)
 references/private/*
 !references/private/.gitkeep
+*.pdf
+
+# LTspice local artefacts (not classified until the owner runs them)
+spice/**/*.raw
+spice/**/*.log
+spice/**/*.net
+spice/**/*.fft
+spice/**/*.plt
 
 # Private IP notes
 docs/ip/private-notes.md

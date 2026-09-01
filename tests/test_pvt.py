@@ -2,6 +2,8 @@ import numpy as np
 import pytest
 
 from tidl_poc.models.pvt import (
+    KWIATKOWSKI_OFFSET_SPAN_0_40C_PS,
+    KWIATKOWSKI_OFFSET_TC_PS_PER_C,
     T_MAX_C,
     T_MIN_C,
     T_REF_C,
@@ -53,3 +55,10 @@ def test_zero_at_reference_temperature():
 def test_operating_range_constants():
     assert T_MIN_C == 10.0
     assert T_MAX_C == 40.0
+
+
+def test_kwiatkowski_offset_coefficient_is_literature_anchor_only():
+    assert KWIATKOWSKI_OFFSET_TC_PS_PER_C == 0.525
+    assert KWIATKOWSKI_OFFSET_SPAN_0_40C_PS == 21.0
+    assert KWIATKOWSKI_OFFSET_TC_PS_PER_C * 40.0 == 21.0
+    assert KWIATKOWSKI_OFFSET_TC_PS_PER_C * (T_MAX_C - T_MIN_C) == 15.75

@@ -25,9 +25,10 @@ Every numerical result must be one of:
 4. SPICE/front-end simulation
 5. physical POC measurement
 
-At this stage, classes 1–4 may exist. Class 3 is scaffolding only (no timing
-closure or utilization numbers). Class 4 does not yet exist. Class 5 does not
-exist. Simulations are never physical measurements.
+At this stage, classes 1–2 exist. Class 3 is scaffolding only (no timing
+closure or utilization numbers). Class 4 has a documented LTspice workflow and
+**no results**. Class 5 does not exist. Simulations are never physical
+measurements.
 
 Claims tracking: [docs/competition/claims-register.md](docs/competition/claims-register.md).
 Requirement matrix: [docs/requirements/S1-S16-evidence-matrix.md](docs/requirements/S1-S16-evidence-matrix.md).
@@ -100,6 +101,7 @@ Vivado is not required for CI. Tcl under `scripts/vivado/` is preparation only.
 - `references/` bibliography (no paywalled PDFs)
 - `simulations/` experiment entry points
 - `src/tidl_poc/` models and CLI
+- `spice/` LTspice workflow only (no results until the owner runs LTspice)
 - `rtl/` SystemVerilog scaffolding
 - `tb/` arithmetic/protocol testbenches
 - `constraints/` family folders (no fake timing numbers)

@@ -23,7 +23,7 @@ and maintainability evidence, design target ≥10 years full-time operation.
 | Proposed subsystem/technique | Common 10 MHz input, 50 ohm, SMA female, distributed to coarse counter and TDC sampling clock after qualification. |
 | Literature support | Huang 2026 (periodic characterisation context); NIST SP 1065 / IEEE 1139 (stability methodology). |
 | Current simulation evidence | Behavioural qualification / loss / holdover flags: `python -m tidl_poc sim reference-clock`. |
-| Current gap | No oscillator, no ADEV, no measured 10 MHz jitter allocation. |
+| Current gap | No oscillator, no ADEV, no measured 10 MHz jitter allocation. Kwiatkowski 2023 notes that for intervals longer than hundreds of µs their TCXO, not the counter, limited precision — qualitative literature only; do not derive ADEV from it. |
 | POC validation method | Measure 10 MHz presence, frequency, and short-term stability at the FPGA clock pin with a traceable counter/phase-noise setup. |
 | Pass/fail acceptance criterion | TBD: qualified 10 MHz detected; holdover flag on loss; stability allocation vs 20 ps over the required interval (TBD) met. |
 
@@ -33,8 +33,8 @@ and maintainability evidence, design target ≥10 years full-time operation.
 | --- | --- |
 | Proposed subsystem/technique | 50 ohm terminated analog front-end to SMA female. |
 | Literature support | Standard RF practice; no TDC paper substitutes for a front-end design. |
-| Current simulation evidence | None (no SPICE). Front-end jitter model is voltage-noise/slew, not S11. |
-| Current gap | No schematic, no SPICE, no TDR. |
+| Current simulation evidence | Front-end jitter model is voltage-noise/slew, not S11. ADCMP580 is a datasheet candidate with on-chip 50 ohm inputs (external component evidence). |
+| Current gap | No schematic, no LTspice results, no TDR. |
 | POC validation method | S11 / return-loss and TDR at the 10 MHz inlet. |
 | Pass/fail acceptance criterion | TBD (target 50 ohm system; numeric VSWR limit not yet set). |
 
@@ -65,9 +65,9 @@ and maintainability evidence, design target ≥10 years full-time operation.
 | Field | Content |
 | --- | --- |
 | Proposed subsystem/technique | Event TDC path (not DDMTD). Arbitrary 1 PPS edges, not a continuous beat-note. |
-| Literature support | Huang 2026: DDMTD is weaker for the authors' periodic phase tests than a multi-chain TDC and is not an event interpolator. |
-| Current simulation evidence | Coarse+fine range model; error budget; calibration synthetic TDL. |
-| Current gap | No FPGA event capture; no comparator. |
+| Literature support | Huang 2026: DDMTD is weaker for the authors' periodic phase tests than a multi-chain TDC and is not an event interpolator. Kwiatkowski 2023 timestamp architecture is event-capable (literature). |
+| Current simulation evidence | Coarse+fine range model; error budget; calibration synthetic TDL; `mswu-literature` 16 events/s vs 140 MSa/s encoder Fmax (interpretation). |
+| Current gap | No FPGA event capture; comparator not selected (ADCMP580 is a candidate). Challenge amplitude/rise/threshold unspecified. |
 | POC validation method | Inject calibrated 1 PPS / delayed 1 PPS into measurement channels. |
 | Pass/fail acceptance criterion | S14 on the injected interval (after front-end and TDC are built). |
 
@@ -77,8 +77,8 @@ and maintainability evidence, design target ≥10 years full-time operation.
 | --- | --- |
 | Proposed subsystem/technique | 50 ohm SMA female per channel. |
 | Literature support | RF practice. |
-| Current simulation evidence | Front-end jitter uses slew and voltage noise, not impedance. |
-| Current gap | No SPICE. |
+| Current simulation evidence | Front-end jitter uses slew and voltage noise, not impedance. ADCMP580 datasheet: on-chip 50 ohm at both inputs (external component evidence). |
+| Current gap | No LTspice results; CML-to-Kintex-7 interface not designed. |
 | POC validation method | S11 / TDR per channel. |
 | Pass/fail acceptance criterion | TBD. |
 
@@ -87,9 +87,9 @@ and maintainability evidence, design target ≥10 years full-time operation.
 | Field | Content |
 | --- | --- |
 | Proposed subsystem/technique | Preferred: 16 simultaneous independently timestamped channels. Alternate: analog/digital switching, including hot switching. |
-| Literature support | Bayer and Traxler 2011 (48 ch); Lusardi 2019; Garzetti 2021. Resource scaling is device-specific (Morabito 2024). |
-| Current simulation evidence | 16-channel covariance/skew model (`channel-scaling`). RTL top parameter `N_CHANNELS=16`. |
-| Current gap | No utilization numbers; switching path not designed; crosstalk coefficient assumed. |
+| Literature support | Bayer and Traxler 2011 (48 ch); Lusardi 2019; Garzetti 2021; Kwiatkowski 2023 two-channel XC7K160 resources (literature, high-rate instrument). Resource scaling is device-specific (Morabito 2024). |
+| Current simulation evidence | 16-channel covariance/skew model (`channel-scaling`). RTL top parameter `N_CHANNELS=16`. Naive 16 × paper-channel arithmetic in `mswu-literature` (not a fit claim). |
+| Current gap | No utilization numbers; switching path not designed; crosstalk coefficient assumed. Paper FIFOs are not our architecture. |
 | POC validation method | Simultaneous 16-channel injection vs single-active; if switching is chosen, hot-switch transient test. |
 | Pass/fail acceptance criterion | 16 channels meet S14 simultaneously (preferred) or documented switch/settle budget (alternate). TBD numerically until error budget is closed. |
 
@@ -122,7 +122,7 @@ and maintainability evidence, design target ≥10 years full-time operation.
 | Proposed subsystem/technique | Configurable UDP export of timestamp records; internal log is the measurement of record. |
 | Literature support | None required for the concept. |
 | Current simulation evidence | Packet drop/reorder/duplicate vs internal-log replay (`packet-logging`). Software/data-path only. |
-| Current gap | No FPGA/software implementation; no rate/MTU study. |
+| Current gap | No FPGA/software implementation; no rate/MTU study. Specified 1 PPS × 16 = 16 events/s does not need hundreds of MS/s host transfer ([low-rate-16-channel-datapath.md](../analysis/low-rate-16-channel-datapath.md)). |
 | POC validation method | Inject known sequences; drop packets on the LAN; recover from internal log. |
 | Pass/fail acceptance criterion | External UDP loss does not imply measurement loss while the internal log is intact. |
 
@@ -155,7 +155,7 @@ and maintainability evidence, design target ≥10 years full-time operation.
 | Proposed subsystem/technique | On-instrument circular log with sequence, quality, calibration version, CRC. |
 | Literature support | None required. |
 | Current simulation evidence | Record schema + reconciliation model. |
-| Current gap | No media endurance, no filesystem, no 10-year retention design. |
+| Current gap | No media endurance, no filesystem, no 10-year retention design. Buffer sizing deferred until record format and outage-retention are fixed. |
 | POC validation method | Fill, power-cycle, replay, compare to injected sequences. |
 | Pass/fail acceptance criterion | Zero measurement loss on replay when the log is intact; UDP-only path may lose packets. |
 
@@ -164,8 +164,8 @@ and maintainability evidence, design target ≥10 years full-time operation.
 | Field | Content |
 | --- | --- |
 | Proposed subsystem/technique | Signed coarse counter + fine TDC; code-density and PVT calibration; front-end slew control. |
-| Literature support | Mao 2022 (SSP/resolution on Kintex-7 MCS, **literature only**); Kwiatkowski 2023 (WU, literature only); Pan 2014 (20 ps TDC with temperature correction, **authors' FPGA**, not this project). |
-| Current simulation evidence | Coarse+fine arithmetic; parallel-chain SSP model; synthetic calibration; error-budget scenarios; PVT sweeps; front-end slew contours. |
+| Literature support | Mao 2022 (SSP/resolution on Kintex-7 MCS, **literature only**); Kwiatkowski 2023 (MSWU-B on XC7K160: ~0.4 ps mean resolution, interval std generally <4 ps / up to 5.2 ps near 10 ns, **authors' FPGA**, not this project; low LSB is not low INL); Pan 2014 (20 ps TDC with temperature correction, **authors' FPGA**, not this project). |
+| Current simulation evidence | Coarse+fine arithmetic; parallel-chain SSP model; synthetic calibration; error-budget scenarios; PVT sweeps including a 0.525 ps/°C literature offset scenario; front-end slew contours; `mswu-literature` calculator. |
 | Current gap | No FPGA, no SPICE, no closed error budget with measured terms. Illustrative RSS can sit near 20 ps while conservative/stress scenarios fail — that is intentional. |
 | POC validation method | Start-stop statistical tests; code-density DNL/INL; temperature sweep 10–40 °C; ADEV of the reference (NIST SP 1065). |
 | Pass/fail acceptance criterion | Precision: RMS of repeated intervals ≤ 20 ps under stated conditions. Accuracy: \|mean error vs traceable interval\| ≤ 20 ps. Resolution: demonstrated physical LSB / effective resolution ≤ 1 ps **without** equating digital quantization to physics. Range: represent and measure −1 s to +1 s. All TBD until hardware exists. |

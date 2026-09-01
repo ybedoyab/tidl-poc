@@ -15,3 +15,11 @@ A7). They are not FPGA crosstalk measurements.
 
 First Vivado resource scaling is 1 → 4 → 8 → 16 channels on Kintex-7 / 8-chain
 TDL ([vivado-baseline-decision.md](vivado-baseline-decision.md)).
+
+Naive replication of the Kwiatkowski 2023 complete measurement channel is
+**not** this architecture. At 16 × 1 PPS the paper's deep FIFOs are not
+required by event rate
+([low-rate-16-channel-datapath.md](low-rate-16-channel-datapath.md)).
+`python -m tidl_poc sim mswu-literature` reports that arithmetic without
+claiming a fit or a final BRAM number.
+

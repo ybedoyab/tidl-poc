@@ -30,6 +30,8 @@ Intended reports (none are checked in):
 - route status
 - resource scaling for 1, 4, 8, 16 channels with 8 parallel chains per channel
 
-Wave Union is not part of this first Tcl flow.
+Wave Union / MSWU-B is not part of this first Tcl flow. After those scaling
+reports exist, a later original single-channel structural MSWU-B branch may be
+added for comparison (no copied paper HDL).
 
 Generated Vivado trees are gitignored.

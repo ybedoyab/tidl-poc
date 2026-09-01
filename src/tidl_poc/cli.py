@@ -21,6 +21,7 @@ from tidl_poc.models import (
     pvt,
     reference_stability,
     utc_reference,
+    mswu_literature,
 )
 
 SIMULATIONS: dict[str, Callable[..., dict]] = {
@@ -34,6 +35,7 @@ SIMULATIONS: dict[str, Callable[..., dict]] = {
     "reference-clock": utc_reference.run,
     "reference-stability": reference_stability.run,
     "packet-logging": packet_logging.run,
+    "mswu-literature": mswu_literature.run,
 }
 
 

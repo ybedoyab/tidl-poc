@@ -25,3 +25,10 @@ At tau = 1 s:
 
 S14 20 ps at 1 s therefore allocates about 2×10⁻¹¹ if the error is modelled this
 way. That allocation is **not** proof that a given oscillator is adequate.
+
+Kwiatkowski et al. 2023 state that for intervals longer than hundreds of
+microseconds, reference-clock (TCXO) stability, not the counter, became the
+main precision limit. That is **qualitative literature evidence** supporting
+keeping a 1 s reference allocation in this package. Do not derive an oscillator
+ADEV, MDEV, or TDEV from that sentence.
+

@@ -7,7 +7,7 @@ Project status: **TRL 2**. Not TRL 3. No laboratory validation.
 | 1 literature evidence | Yes — bibliography and claims register |
 | 2 model-based simulation | Yes — `python -m tidl_poc sim --fast` |
 | 3 RTL/synthesis/implementation | Scaffolding only; no timing/utilization numbers |
-| 4 SPICE / front-end simulation | No |
+| 4 SPICE / front-end simulation | Workflow documented (`spice/`); no LTspice results |
 | 5 physical POC measurement | No |
 
 ## What the models support (carefully)
@@ -23,6 +23,8 @@ Project status: **TRL 2**. Not TRL 3. No laboratory validation.
 - First-order `delta_t = y * tau` reference allocation (not ADEV).
 - Front-end slew/noise contours for 5/10/15 ps allocations.
 - UTC flag state, and UDP vs internal-log reconciliation.
+- Kwiatkowski 2023 transcription plus challenge-rate / naive-resource arithmetic
+  (`mswu-literature`); not MSWU physics and not this FPGA.
 
 ## What they do not support
 

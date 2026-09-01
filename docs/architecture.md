@@ -69,8 +69,11 @@ the internal log is the measurement of record (S10, S13).
 
 Kintex-7 / CARRY4 with **8 parallel chains per channel** is the first synthesis
 branch ([analysis/vivado-baseline-decision.md](analysis/vivado-baseline-decision.md)).
-Report resource scaling at 1, 4, 8, then 16 channels. Wave Union is deferred to
-a second branch until those reports exist.
+Report resource scaling at 1, 4, 8, then 16 channels. MSWU type B is a
+**high-upside second branch** after those reports, not a replacement of this
+first flow. Any MSWU-B RTL must be original (no copied paper HDL). See
+[analysis/architecture-trade-study.md](analysis/architecture-trade-study.md)
+and [analysis/low-rate-16-channel-datapath.md](analysis/low-rate-16-channel-datapath.md).
 
 Other families remain candidates, not selected: low-end Kintex UltraScale
 (XCKU025 / XCKU035); basic Kintex UltraScale+ (XCKU3P / XCKU5P). `TIDL_PART`
