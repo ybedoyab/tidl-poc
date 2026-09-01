@@ -11,6 +11,7 @@ def test_all_planned_simulations_registered():
         "channel-scaling",
         "frontend-jitter",
         "reference-clock",
+        "reference-stability",
         "packet-logging",
     }
     assert expected == set(SIMULATIONS)

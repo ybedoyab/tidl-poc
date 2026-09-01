@@ -83,6 +83,11 @@ test, not as the measurement path.
 This recommendation follows the table. It is not a claim that multi-chain meets
 S14 on the unselected FPGA.
 
+**First Vivado baseline (decision, not evidence):** Kintex-7 / CARRY4, 8 chains
+per channel, synthesis scaling 1 → 4 → 8 → 16. Wave Union is a second branch
+after resource/timing reports. Details:
+[vivado-baseline-decision.md](vivado-baseline-decision.md).
+
 ## What would change the recommendation
 
 - Resource estimates after a part is selected showing 16 × N-chain TDL does not

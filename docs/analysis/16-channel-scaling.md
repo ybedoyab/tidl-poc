@@ -3,23 +3,15 @@
 Preferred: simultaneous timestamping of all 16 channels (S7).
 Alternate: switching, including hot switching, with a documented settle time.
 
-`python -m tidl_poc sim channel-scaling` is a covariance model:
+`python -m tidl_poc sim channel-scaling`:
 
-- per-channel offset
-- common-mode timing noise (rank-1)
-- independent noise
-- optional crosstalk growing with simultaneous activity
+- one static per-channel offset realisation, **reused** at activity 1, 2, 4, 8, 16
+- common-mode and independent random precision
+- crosstalk as a **sensitivity sweep**, not a single privileged coefficient
+- metrics split: static offset/skew vs precision RMS after removing channel means
 
-Outputs: 16×16 covariance heatmap, pairwise skew distribution, worst-channel and
-worst-pair metrics, single-active vs 16-active RMS.
+Coefficients are engineering allocations (see [assumptions.md](../assumptions.md)
+A7). They are not FPGA crosstalk measurements.
 
-All coefficients are assumptions (see [assumptions.md](../assumptions.md) A7).
-They are not FPGA crosstalk measurements.
-
-Resource scaling (LUTs, carry chains, RAM for LUTs) needs Vivado reports after a
-part is chosen. Scripts in `scripts/vivado/` list the intended reports; CI does
-not run them.
-
-If the selected FPGA cannot host 16 simultaneous fine engines, the alternate
-switching concept becomes in-scope. That would add a hot-switch transient term
-to the error budget and would need an explicit S7 acceptance rewrite.
+First Vivado resource scaling is 1 → 4 → 8 → 16 channels on Kintex-7 / 8-chain
+TDL ([vivado-baseline-decision.md](vivado-baseline-decision.md)).

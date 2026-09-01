@@ -19,6 +19,7 @@ from tidl_poc.models import (
     packet_logging,
     parallel_chains,
     pvt,
+    reference_stability,
     utc_reference,
 )
 
@@ -31,6 +32,7 @@ SIMULATIONS: dict[str, Callable[..., dict]] = {
     "channel-scaling": channel_scaling.run,
     "frontend-jitter": frontend_jitter.run,
     "reference-clock": utc_reference.run,
+    "reference-stability": reference_stability.run,
     "packet-logging": packet_logging.run,
 }
 

@@ -2,23 +2,20 @@
 
 Required operating range: 10–40 °C. Laboratory nominal: 20–23 °C.
 
-`python -m tidl_poc sim pvt` compares:
+`python -m tidl_poc sim pvt` is a **time-domain calibration state** model:
 
-- no calibration
-- periodic calibration (interval sweep)
-- continuous/online calibration (lag-limited)
+- no calibration (LUT frozen at T_ref)
+- periodic calibration (LUT stores current drift at each epoch; residual is
+  identically zero at those samples)
+- continuous/online calibration (causal lag)
 
-Delay-bin scale drift and channel-offset drift are **swept assumptions**.
-Mao et al. 2022 quote 0.0002 ps/°C as a **resolution** temperature coefficient
-on 25–70 °C for their MCS TDC. That number is tracked as literature and is
-**not** used as residual timestamp error.
+Profiles: static soak, ramp, and step. Delay-bin scale drift and channel-offset
+drift are **swept engineering allocations**. Mao et al. 2022 quote 0.0002 ps/°C
+as a **resolution** temperature coefficient; it is **not** the residual used here.
 
-## Qualitative result of the model
-
-Without calibration, residual grows with |T − T_ref|. Periodic calibration is
-limited by interval × ramp rate. Continuous calibration is limited by a lag
-assumption (0.2 s) and the same ramp rate. Worst-case numbers over the sweep
-are assumption-dominated; see generated `outputs/pvt/`.
+On a static soak, the first periodic epoch zeros the residual for the rest of
+the dwell. Interval sensitivity is therefore a ramp/step result, reported as
+worst-case and RMS residual versus interval.
 
 ## POC
 

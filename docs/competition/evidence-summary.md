@@ -16,9 +16,11 @@ Project status: **TRL 2**. Not TRL 3. No laboratory validation.
   sensitivity to the Mao 2022 anchors.
 - Synthetic code-density calibration behaviour on an illustrative TDL.
 - Arithmetic feasibility of ±1 s at 1 ps digital quantization.
-- An error-budget *framework* in which conservative and stress cases miss 20 ps.
-- PVT policy comparison under assumed drift coefficients for 10–40 °C.
-- 16-channel covariance structure (assumed coefficients).
+- An error-budget *framework* with precision vs accuracy tables; conservative and
+  stress miss 20 ps; `target_allocation` is a labelled engineering allocation.
+- PVT time-domain calibration state (residual zero at each epoch) for 10–40 °C.
+- 16-channel covariance with shared offsets and a crosstalk sweep.
+- First-order `delta_t = y * tau` reference allocation (not ADEV).
 - Front-end slew/noise contours for 5/10/15 ps allocations.
 - UTC flag state, and UDP vs internal-log reconciliation.
 

@@ -49,7 +49,8 @@ Tracked docs describe interfaces and calibration *roles*, not a copyable layout.
 - External 1 PPS (S3/S4) is the UTC epoch.
 - Coarse counter width is an arithmetic problem (see coarse+fine simulation).
 - Meeting 20 ps over intervals up to 1 s is a **reference stability** problem
-  (NIST SP 1065, IEEE 1139), not a bit-width problem.
+  (first-order `delta_t = y * tau`; NIST SP 1065 / IEEE 1139 once data exist),
+  not a bit-width problem. See [analysis/reference-stability.md](analysis/reference-stability.md).
 
 ## Channel concept
 
@@ -64,8 +65,14 @@ Every record carries UTC/coarse context, channel, fine time, sequence, quality
 bits, calibration version, and an integrity field. UDP is the export path;
 the internal log is the measurement of record (S10, S13).
 
-## Families under consideration (not selected)
+## Families and first Vivado baseline
 
-Kintex-7; low-end Kintex UltraScale (XCKU025 / XCKU035); basic Kintex
-UltraScale+ (XCKU3P / XCKU5P). Part is a Tcl/environment variable. No
-utilization or Fmax numbers exist in this repository.
+Kintex-7 / CARRY4 with **8 parallel chains per channel** is the first synthesis
+branch ([analysis/vivado-baseline-decision.md](analysis/vivado-baseline-decision.md)).
+Report resource scaling at 1, 4, 8, then 16 channels. Wave Union is deferred to
+a second branch until those reports exist.
+
+Other families remain candidates, not selected: low-end Kintex UltraScale
+(XCKU025 / XCKU035); basic Kintex UltraScale+ (XCKU3P / XCKU5P). `TIDL_PART`
+must still be set in Tcl. No utilization or Fmax numbers exist in this
+repository.
