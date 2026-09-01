@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tidl-poc"
+version = "0.1.0"
+description = "TRL-2 model-based concept evidence package for an Innovate UK / NPNTO Time Interval Data Logger (TIDL) challenge."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "All Rights Reserved. See LICENSE-NOTICE.md." }
+authors = [{ name = "TIDL POC contributors" }]
+dependencies = [
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "pandas>=2.1",
+    "matplotlib>=3.8",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+tidl-poc = "tidl_poc.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "slow: longer simulations skipped in default CI",
+]
+
+[tool.tidl]
+default_seed = 42
+result_classification = "model-based simulation"

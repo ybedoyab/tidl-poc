@@ -1,0 +1,79 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Generated simulation outputs (keep README)
+outputs/*
+!outputs/README.md
+
+# Local papers (keep .gitkeep)
+references/private/*
+!references/private/.gitkeep
+
+# Private IP notes
+docs/ip/private-notes.md
+
+# Vivado / Xilinx
+.Xil/
+*.jou
+*.log
+*.str
+*.debug
+*.runs/
+*.cache/
+*.gen/
+*.hw/
+*.ip_user_files/
+*.sim/
+*.srcs/
+*.xpr
+*.bit
+*.bin
+*.ltx
+*.mcs
+*.prm
+*.dcp
+*.xpe
+*.pb
+*.wdb
+*.wcfg
+vivado_pid*.str
+tight_setup_hold_times.txt
+
+# Large simulation dumps
+*.vcd
+*.fst
+*.fsdb
+*.saif
+*.shm/
+*.wlf
+*.dump
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Local env / secrets
+.env
+.env.*
+*.pem
+*.key
+credentials.json
+secrets.json
