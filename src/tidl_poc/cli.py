@@ -98,6 +98,19 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="re-parse existing outputs/vivado_kintex7 reports; do not launch Vivado",
     )
+    tc = sub.add_parser(
+        "vivado-timing-clean",
+        help="timing-clean 64-CARRY4/channel scaling benchmark (not CI; not a measurement)",
+    )
+    tc.add_argument("--vivado", type=Path, default=None, help="path to vivado.bat / vivado")
+    tc.add_argument("--skip-run", action="store_true", help="generate Tcl without launching Vivado")
+    tc.add_argument("--only", type=str, default=None, help="run a single case id")
+    tc.add_argument("--timeout-s", type=float, default=21600.0, help="per-case timeout seconds")
+    tc.add_argument(
+        "--export-only",
+        action="store_true",
+        help="re-parse outputs/vivado_kintex7_timing_clean; do not launch Vivado",
+    )
     return parser
 
 
@@ -141,4 +154,25 @@ def main(argv: list[str] | None = None) -> int:
         for n_ch in (1, 4, 8, 16):
             print(compact_resource_line(extra, n_ch, 64))
         return 0 if extra.get("discover_error") is None or extra.get("synth_ok", 0) > 0 else 2
+    if args.cmd == "vivado-timing-clean":
+        from tidl_poc.vivado.baseline import compact_resource_line
+        from tidl_poc.vivado.timing_clean import run as run_timing_clean
+
+        result = run_timing_clean(
+            vivado=args.vivado,
+            skip_run=args.skip_run,
+            only=args.only,
+            timeout_s=args.timeout_s,
+            export_only=args.export_only,
+        )
+        extra = result["extra"]
+        print("RTL/synthesis/implementation evidence; not a physical measurement")
+        print(f"output_dir={result['output_dir']}")
+        print(f"evidence_dir={result.get('evidence_dir')}")
+        print(f"vivado_version={extra.get('vivado_version')}")
+        print(f"part={extra.get('part')}")
+        print(f"synth_ok={extra.get('synth_ok')} impl_ok={extra.get('impl_ok')}")
+        for n_ch in (1, 4, 8, 16):
+            print(compact_resource_line(extra, n_ch, 64))
+        return 0 if extra.get("synth_ok", 0) > 0 else 2
     return 2

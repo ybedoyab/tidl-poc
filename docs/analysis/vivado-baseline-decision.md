@@ -74,6 +74,20 @@ of device slices. That **lowers implementation-capacity risk**. It does
 **not** prove 1 ps resolution, DNL, SSP, accuracy, or temperature
 performance. Do **not** select multichain vs MSWU-B from these results alone.
 
+## Timing-clean benchmark (Round 7)
+
+Round 6 exposed capture FFs through a **benchmark-only wide XOR parity tree**
+(`chain_parity = ^captured_k`, hierarchical reduction to `tap_parity`). That
+network is not part of the proposed metrology datapath and was the likely
+source of negative 4 ns WNS from 1ch/64 upward in Round 6.
+
+Round 7 removes the parity tree. Capture FFs are retained via `KEEP` /
+`DONT_TOUCH`; the top registers one representative bit per channel. Same 4 ns
+clock, same narrow false paths, timing-driven P&R for all channel counts.
+
+Results: [docs/evidence/vivado_kintex7_timing_clean/](../evidence/vivado_kintex7_timing_clean/).
+Round-6 snapshot is preserved in [docs/evidence/vivado_kintex7/](../evidence/vivado_kintex7/).
+
 ## Runner timeout anomaly
 
 The first 16×64 Python parent hit a 10800 s `subprocess` timeout and recorded

@@ -222,6 +222,9 @@ def collect_case_result(
             impl_ok = impl_status == "ok"
 
     optimized_away = expected.optimized_away(mapped_carry4)
+    capture_ff_ok = (
+        mapped_fdre is not None and int(mapped_fdre) >= expected.capture_ff_min
+    )
     return {
         "case_id": case.case_id,
         "channels": case.channels,
@@ -232,6 +235,7 @@ def collect_case_result(
         "expected_capture_ff_min": expected.capture_ff_min,
         "mapped_carry4": mapped_carry4,
         "mapped_fdre": mapped_fdre,
+        "capture_ff_ok": capture_ff_ok,
         "carry4_optimized_away": optimized_away,
         "slice_luts": util.get("slice_luts"),
         "slice_registers": util.get("slice_registers"),
@@ -583,6 +587,9 @@ def run(
                     out_dir=stage_case,
                     do_impl=case.do_impl,
                     n_carry4=case.carry4_per_chain,
+                    expected_capture_ff=expected_counts(
+                        case.channels, case.chains_per_channel, case.carry4_per_chain
+                    ).capture_ff_min,
                     place_guide=case.do_impl and case.channels == 1,
                     fast_impl=case.do_impl and case.channels >= 8,
                 ),

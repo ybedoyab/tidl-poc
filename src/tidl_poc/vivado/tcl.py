@@ -16,7 +16,7 @@ module tdc_benchmark_wrap (
     input  logic                    clk,
     input  logic                    rst_n,
     input  logic [{n_channels - 1}:0] hit,
-    output logic                    tap_parity,
+    output logic [{n_channels - 1}:0] bench_status,
     output logic [{n_channels - 1}:0] channel_valid
 );
   tdc_benchmark_top #(
@@ -27,7 +27,7 @@ module tdc_benchmark_wrap (
       .clk          (clk),
       .rst_n        (rst_n),
       .hit          (hit),
-      .tap_parity   (tap_parity),
+      .bench_status (bench_status),
       .channel_valid(channel_valid)
   );
 endmodule
@@ -43,6 +43,7 @@ def generate_case_tcl(
     out_dir: Path,
     do_impl: bool,
     n_carry4: int,
+    expected_capture_ff: int,
     place_guide: bool = True,
     fast_impl: bool = False,
 ) -> str:
@@ -53,6 +54,7 @@ def generate_case_tcl(
     impl_flag = 1 if do_impl else 0
     place_flag = 1 if place_guide else 0
     fast_flag = 1 if fast_impl else 0
+    timing_paths_flag = 1 if do_impl and not fast_impl else 0
     synth_cmd = "synth_design -mode out_of_context -top tdc_benchmark_wrap -part $part"
     opt_cmd = "opt_design"
     place_cmd = "place_design"
@@ -70,7 +72,9 @@ set outdir {{{out}}}
 set do_impl {impl_flag}
 set do_place_guide {place_flag}
 set do_fast_impl {fast_flag}
+set do_timing_paths {timing_paths_flag}
 set n_carry4 {n_carry4}
+set expected_capture_ff {expected_capture_ff}
 file mkdir $outdir
 
 read_verilog -sv [list \\
@@ -121,7 +125,17 @@ puts $kv "TIDL_LUT3_COUNT=$lut3_n"
 puts $kv "TIDL_LUT4_COUNT=$lut4_n"
 puts $kv "TIDL_LUT5_COUNT=$lut5_n"
 puts $kv "TIDL_LUT6_COUNT=$lut6_n"
+puts $kv "TIDL_CAPTURE_FF_EXPECTED=$expected_capture_ff"
+if {{$fdre_n < $expected_capture_ff}} {{
+  puts $kv "TIDL_CAPTURE_FF_SHORTFALL=1"
+  puts "TIDL_CAPTURE_FF_SHORTFALL=1"
+}} else {{
+  puts $kv "TIDL_CAPTURE_FF_SHORTFALL=0"
+  puts "TIDL_CAPTURE_FF_SHORTFALL=0"
+}}
 close $kv
+
+puts "TIDL_CAPTURE_FF_EXPECTED=$expected_capture_ff"
 
 report_utilization -file [file join $outdir utilization_synth.rpt]
 report_utilization -hierarchical -file [file join $outdir utilization_hier_synth.rpt]
@@ -253,6 +267,9 @@ if {{$do_impl}} {{
   report_drc -file [file join $outdir drc_impl.rpt]
   report_route_status -file [file join $outdir route_status.rpt]
   report_clock_utilization -file [file join $outdir clock_utilization.rpt]
+  if {{$do_timing_paths}} {{
+    report_timing -max_paths 10 -path_type full -file [file join $outdir timing_paths.rpt]
+  }}
 
   set locf [open [file join $outdir carry_locs.txt] w]
   puts $locf "# cell loc bel"

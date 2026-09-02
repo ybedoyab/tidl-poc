@@ -1,0 +1,5 @@
+case_id,channels,chains_per_channel,carry4_per_chain,expected_carry4,mapped_carry4,expected_taps,expected_capture_ff_min,mapped_fdre,carry4_optimized_away,slice_luts,slice_registers,slices,slice_luts_pct,slice_registers_pct,slices_pct,utilization_source,synth_status,impl_status,runner_status,impl_requested,wns_ns,tns_ns,control_timing_closed,route_status,fully_routed,n_chains_reported,n_vertical_runs,n_scattered_chains
+ch01_nch08_c4_64,1,8,64,512,512,2048,2048,2050,False,1535,2050,899,1.51,1.01,3.55,impl,ok,ok,succeeded,True,2.973,0.0,True,fully_routed,True,8,8,0
+ch04_nch08_c4_64,4,8,64,2048,2048,8192,8192,8200,False,8191,8200,4099,8.08,4.04,16.17,impl,ok,ok,succeeded,True,3.476,0.0,True,fully_routed,True,32,32,0
+ch08_nch08_c4_64,8,8,64,4096,4096,16384,16384,16400,False,9018,16400,6388,8.89,8.09,25.2,impl,ok,ok,succeeded,True,3.142,0.0,True,fully_routed,True,64,64,0
+ch16_nch08_c4_64,16,8,64,8192,8192,32768,32768,32800,False,21547,32800,13669,21.25,16.17,53.92,impl,ok,ok,succeeded,True,3.045,0.0,True,fully_routed,True,128,128,0

@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from tidl_poc import RTL_DISCLAIMER, RTL_RESULT_CLASSIFICATION
 from tidl_poc.common.metadata import build_metadata, validate_metadata_schema
 from tidl_poc.vivado.counts import expected_counts
@@ -41,6 +43,7 @@ def test_primary_matrix_impl_subset():
         out_dir=dummy / "out",
         do_impl=True,
         n_carry4=32,
+        expected_capture_ff=1024,
         place_guide=True,
     )
     assert "set do_place_guide 1" in guided
@@ -52,6 +55,7 @@ def test_primary_matrix_impl_subset():
         out_dir=dummy / "out",
         do_impl=True,
         n_carry4=64,
+        expected_capture_ff=2048,
         place_guide=False,
         fast_impl=True,
     )
@@ -180,6 +184,46 @@ def test_placement_scatter_from_fixture():
     assert metrics["n_chains_reported"] == 2
     assert metrics["n_scattered_chains"] == 1
     assert metrics["scattered"] is True
+
+
+def test_timing_clean_matrix_is_four_impl_cases_at_64():
+    from tidl_poc.vivado.timing_clean import timing_clean_matrix
+
+    cases = timing_clean_matrix()
+    assert len(cases) == 4
+    assert {c.channels for c in cases} == {1, 4, 8, 16}
+    assert all(c.carry4_per_chain == 64 for c in cases)
+    assert all(c.do_impl for c in cases)
+
+
+def test_assert_capture_ff_matches():
+    from tidl_poc.vivado.evidence import CaptureFfMismatchError, assert_capture_ff_matches
+
+    assert_capture_ff_matches(
+        [
+            {
+                "case_id": "ch01_nch08_c4_64",
+                "channels": 1,
+                "chains_per_channel": 8,
+                "carry4_per_chain": 64,
+                "expected_capture_ff_min": 2048,
+                "mapped_fdre": 2051,
+            }
+        ]
+    )
+    with pytest.raises(CaptureFfMismatchError):
+        assert_capture_ff_matches(
+            [
+                {
+                    "case_id": "ch16_nch08_c4_64",
+                    "channels": 16,
+                    "chains_per_channel": 8,
+                    "carry4_per_chain": 64,
+                    "expected_capture_ff_min": 32768,
+                    "mapped_fdre": 32000,
+                }
+            ]
+        )
 
 
 def test_no_machine_paths_in_tracked_sources():

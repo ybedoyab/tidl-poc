@@ -19,6 +19,7 @@ EVIDENCE_DISCLAIMER = (
 )
 
 EVIDENCE_RELATIVE = Path("docs") / "evidence" / "vivado_kintex7"
+EVIDENCE_TIMING_CLEAN_RELATIVE = Path("docs") / "evidence" / "vivado_kintex7_timing_clean"
 
 RESOURCE_FIELDS = [
     "case_id",
@@ -58,6 +59,37 @@ IMPL_FIELDS = RESOURCE_FIELDS + [
 
 class Carry4MismatchError(RuntimeError):
     """Mapped CARRY4 does not match channels × 8 × carry4_per_chain."""
+
+
+class CaptureFfMismatchError(RuntimeError):
+    """Mapped FDRE count is below the structural capture-FF lower bound."""
+
+
+def timing_clean_evidence_dir(root: Path | None = None) -> Path:
+    return (root or repo_root()) / EVIDENCE_TIMING_CLEAN_RELATIVE
+
+
+def assert_capture_ff_matches(cases: list[dict[str, Any]]) -> None:
+    """Fail export if mapped FDRE is below channels × 8 × carry4 × 4."""
+    mismatches: list[str] = []
+    for row in cases:
+        mapped = row.get("mapped_fdre")
+        if mapped is None:
+            continue
+        expected_min = row.get("expected_capture_ff_min")
+        if expected_min is None:
+            channels = int(row["channels"])
+            chains = int(row.get("chains_per_channel") or 8)
+            n_c4 = int(row["carry4_per_chain"])
+            expected_min = expected_counts(channels, chains, n_c4).capture_ff_min
+        if int(mapped) < int(expected_min):
+            mismatches.append(
+                f"{row.get('case_id')}: mapped_fdre {mapped} < expected_min {expected_min}"
+            )
+    if mismatches:
+        raise CaptureFfMismatchError(
+            "mapped FDRE below structural capture-FF lower bound: " + "; ".join(mismatches)
+        )
 
 
 def evidence_dir(root: Path | None = None) -> Path:
@@ -239,7 +271,12 @@ The runner now:
 3. can label a completed child as `recovered_after_timeout` instead of
    inventing a false `failed`.
 
-A leftover report file is never treated as success by itself.
+A leftover file is never treated as success by itself.
+
+## Round 7 timing-clean benchmark
+
+See [docs/evidence/vivado_kintex7_timing_clean/](../evidence/vivado_kintex7_timing_clean/).
+This directory is separate from Round 6 above; historical numbers are not overwritten.
 """,
         encoding="utf-8",
     )
@@ -341,4 +378,134 @@ def write_evidence_snapshot(
         encoding="utf-8",
     )
     write_evidence_readme(dest / "README.md")
+    return dest
+
+
+def write_timing_clean_evidence_readme(dest: Path) -> None:
+    dest.write_text(
+        """# Kintex-7 timing-clean structural benchmark
+
+**Classification:** RTL/synthesis/implementation evidence.
+**Vivado:** 2026.1. **Part:** `xc7k160tffg676-2`.
+**Clock:** 4.000 ns on `clk` (synchronous capture/benchmark-control only).
+**Asynchronous hit** inputs are narrowly false-pathed; `rst_n` into FDRE.R only.
+
+This snapshot reran synthesis and place/route for channels {1,4,8,16} at
+**64 CARRY4 per chain** after removing the Round-6 **benchmark-only wide XOR
+parity tree**. Capture FFs are retained via `KEEP` / `DONT_TOUCH`; the top
+exposes one registered bit per channel (chain-0 tap 0) as `bench_status`.
+
+No physical timing measurement. No claim of 1 ps resolution, DNL, SSP,
+accuracy, or temperature performance.
+
+## Comparison to Round 6
+
+| | Round 6 (`docs/evidence/vivado_kintex7/`) | This snapshot |
+| --- | --- | --- |
+| Observability | Wide `^captured_k` parity per chain, hierarchical XOR to `tap_parity` | KEEP on capture bank; one tap per channel registered |
+| Matrix | 12 synth; 6 impl (32/48/64 sweep) | 4 impl @ 64 CARRY4/chain only |
+| 8/16-ch P&R | `place_design -no_timing_driven` on some cases | Timing-driven place/route |
+| WNS | Negative from 1ch/64 upward (likely parity tree) | See `implementation_summary.csv` |
+
+Round-6 numbers are **not** overwritten. Resource deltas vs Round-6 @64 are
+mostly LUT/FF reduction from removing parity XOR trees; CARRY4 and capture FF
+counts should match structural expectations.
+
+## Figures
+
+- `resource_scaling.png` — slices / LUT / FF / CARRY4 vs channels @ 64 CARRY4/chain.
+- `timing_scaling.png` — 4 ns WNS vs channels (not TDC-bin timing).
+- `placement_16ch_64.png` — 16×64 LOC plot from Vivado text.
+
+## Reproduce
+
+```text
+python -m tidl_poc vivado-timing-clean
+python -m tidl_poc vivado-timing-clean --export-only
+```
+
+Raw Vivado trees stay gitignored under `outputs/vivado_kintex7_timing_clean/`.
+""",
+        encoding="utf-8",
+    )
+
+
+def write_timing_clean_evidence_snapshot(
+    *,
+    cases: list[dict[str, Any]],
+    vivado_version: str | None,
+    part: str | None,
+    outputs_root: Path,
+    dest: Path | None = None,
+) -> Path:
+    assert_mapped_carry4_matches(cases)
+    assert_capture_ff_matches(cases)
+    dest = dest or timing_clean_evidence_dir()
+    dest.mkdir(parents=True, exist_ok=True)
+
+    _write_csv(dest / "implementation_summary.csv", cases, IMPL_FIELDS)
+
+    copies = {
+        "resource_scaling.png": outputs_root / "resource_scaling.png",
+        "timing_scaling.png": outputs_root / "timing_scaling.png",
+        "placement_16ch_64.png": outputs_root / "ch16_nch08_c4_64" / "carry4_placement.png",
+    }
+    copied: dict[str, bool] = {}
+    for name, src in copies.items():
+        copied[name] = _copy_png(src, dest / name)
+
+    case16 = next((c for c in cases if c.get("case_id") == "ch16_nch08_c4_64"), {})
+    placement16 = case16.get("placement") if isinstance(case16.get("placement"), dict) else {}
+    wns16 = case16.get("wns_ns")
+    meets_4ns = isinstance(wns16, (int, float)) and wns16 >= 0
+
+    manifest = {
+        "classification": RTL_RESULT_CLASSIFICATION,
+        "benchmark_variant": "timing_clean",
+        "vivado_version": vivado_version or "2026.1",
+        "target_part": part or "xc7k160tffg676-2",
+        "benchmark_clock_ns": 4.0,
+        "clock_scope": "synchronous capture/benchmark-control logic only",
+        "async_hit_false_path": "narrow: hit[*] ports only",
+        "observability": (
+            "Round-6 wide XOR parity tree removed. Capture FFs retained via "
+            "KEEP/DONT_TOUCH; bench_status registers chain-0 tap 0 per channel."
+        ),
+        "round6_comparison": {
+            "historical_snapshot": "docs/evidence/vivado_kintex7/",
+            "round6_wns_issue": (
+                "Negative WNS from 1ch/64 upward was likely the benchmark-only "
+                "wide parity reduction network, not the CARRY4 TDL structure."
+            ),
+        },
+        "git_commit_source": git_commit_source(),
+        "bitstream_generated": False,
+        "board_pins_assigned": False,
+        "case_count": len(cases),
+        "cases": _case_status_summary(cases),
+        "sixteen_channel_64": {
+            "expected_carry4": case16.get("expected_carry4"),
+            "mapped_carry4": case16.get("mapped_carry4"),
+            "expected_capture_ff_min": case16.get("expected_capture_ff_min"),
+            "mapped_fdre": case16.get("mapped_fdre"),
+            "capture_ff_ok": case16.get("capture_ff_ok"),
+            "slice_luts": case16.get("slice_luts"),
+            "slices": case16.get("slices"),
+            "slices_pct": case16.get("slices_pct"),
+            "wns_ns": wns16,
+            "tns_ns": case16.get("tns_ns"),
+            "route_status": case16.get("route_status"),
+            "meets_4ns_benchmark": meets_4ns,
+            "n_chains_reported": placement16.get("n_chains_reported"),
+            "n_vertical_runs": placement16.get("n_vertical_runs"),
+            "n_scattered_chains": placement16.get("n_scattered_chains"),
+        },
+        "figures_copied": copied,
+        "disclaimer": EVIDENCE_DISCLAIMER,
+    }
+    (dest / "evidence_manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    write_timing_clean_evidence_readme(dest / "README.md")
     return dest

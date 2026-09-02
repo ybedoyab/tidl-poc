@@ -78,3 +78,10 @@ The runner now:
    inventing a false `failed`.
 
 A leftover report file is never treated as success by itself.
+
+## Round 7 timing-clean follow-up
+
+A separate snapshot removes the benchmark-only wide XOR parity tree and reruns
+1/4/8/16 channels @ 64 CARRY4/chain with timing-driven P&R:
+[docs/evidence/vivado_kintex7_timing_clean/](../vivado_kintex7_timing_clean/).
+Round-6 numbers above are not overwritten.

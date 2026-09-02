@@ -1,26 +1,19 @@
-// Parameterized parallel CARRY4 chains for one channel (structural baseline).
+// Round-6 historical multi-chain wrapper (wide XOR parity per chain).
 //
-// First architecture branch uses N_CHAINS=8. Chain count is a parameter, not
-// a frozen metrological result. Encoder and calibration ports are reserved
-// interfaces only; they do not implement bubble encoding or code-density.
-//
-// Benchmark observability: one representative tap per chain (tap 0) is exposed
-// for a shallow registered status path. The full capture bank is retained via
-// KEEP / DONT_TOUCH; there is no wide XOR parity reduction tree.
+// Preserved for reference. Active structural RTL is multi_chain_tdc_structural.sv.
 
 `timescale 1ns/1ps
 
 (* KEEP_HIERARCHY = "YES" *)
-module multi_chain_tdc_structural #(
+module multi_chain_tdc_structural_legacy #(
     parameter int N_CHAINS = 8,
     parameter int N_CARRY4 = 32
 ) (
     input  logic                             clk,
     input  logic                             rst_n,
     input  logic                             hit,
-    (* KEEP = "TRUE", DONT_TOUCH = "TRUE" *)
     output logic [N_CHAINS*4*N_CARRY4-1:0]   captured,
-    output logic [N_CHAINS-1:0]              chain_sample,
+    output logic [N_CHAINS-1:0]              chain_parity,
     output logic                             encoder_ready,
     output logic                             cal_strobe
 );
@@ -31,7 +24,6 @@ module multi_chain_tdc_structural #(
   generate
     for (k = 0; k < N_CHAINS; k++) begin : gen_chain
       logic [N_TAPS-1:0] taps_k;
-      (* KEEP = "TRUE", DONT_TOUCH = "TRUE" *)
       logic [N_TAPS-1:0] captured_k;
 
       carry4_tdl_chain #(
@@ -51,8 +43,7 @@ module multi_chain_tdc_structural #(
       );
 
       assign captured[k*N_TAPS +: N_TAPS] = captured_k;
-      // Representative tap only — not a TDC code or parity checksum.
-      assign chain_sample[k] = captured_k[0];
+      assign chain_parity[k] = ^captured_k;
     end
   endgenerate
 

@@ -27,9 +27,11 @@ Every numerical result must be one of:
 
 At this stage, classes 1–2 exist. Class 3 is an original Kintex-7 CARRY4 TDL
 plus a Vivado 2026.1 OOC matrix on `xc7k160tffg676-2` (12 synthesis cases;
-6 implemented). Tracked snapshot: [docs/evidence/vivado_kintex7/](docs/evidence/vivado_kintex7/).
-Resource, placement, and route evidence only — not 1 ps resolution and not
-physical timing. A 16-channel × 8-chain × 64-CARRY4 topology mapped 8192
+6 implemented). Tracked snapshot: [docs/evidence/vivado_kintex7/](docs/evidence/vivado_kintex7/)
+(historical Round-6 wide-parity benchmark) and
+[docs/evidence/vivado_kintex7_timing_clean/](docs/evidence/vivado_kintex7_timing_clean/)
+(timing-clean observability @ 64 CARRY4/channel). Resource, placement, and route
+evidence only — not 1 ps resolution and not physical timing. A 16-channel × 8-chain × 64-CARRY4 topology mapped 8192
 CARRY4 and fully routed using 10,980 slices (43.3%). Class 4 is an LTspice
 workflow plus local batch results when `scripts/ltspice/run_adcmp580.py`
 succeeds (SPICE/front-end simulation, not lab data). Class 5 does not exist.
@@ -98,14 +100,15 @@ gitignored. Each run writes CSV/JSON, PNG/SVG, and a metadata JSON that
 labels the result as model-based simulation.
 
 Vivado is not required for CI. Kintex-7 structural TDL:
-`python scripts/vivado/run_kintex7_baseline.py` (or `python -m tidl_poc vivado-baseline`).
-Re-parse completed local reports with `--export-only`. Raw trees stay under
-gitignored `outputs/vivado_kintex7/`.
+`python -m tidl_poc vivado-baseline` (12-case matrix) or
+`python -m tidl_poc vivado-timing-clean` (64 CARRY4/channel scaling).
+Re-parse with `--export-only`. Raw trees stay gitignored under `outputs/`.
 
 ## Repository map
 
 - `docs/` requirements, analysis, competition evidence
-- `docs/evidence/vivado_kintex7/` compact tracked Vivado snapshot (not raw tool output)
+- `docs/evidence/vivado_kintex7/` Round-6 structural snapshot (wide parity observability)
+- `docs/evidence/vivado_kintex7_timing_clean/` timing-clean @64 CARRY4/channel
 - `references/` bibliography (no paywalled PDFs)
 - `simulations/` experiment entry points
 - `src/tidl_poc/` models and CLI

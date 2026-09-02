@@ -3,6 +3,9 @@
 // Every delay-line tap is registered so synthesis cannot drop the chain as
 // unused combinational logic. Capture FFs are synchronous to clk; the carry
 // path itself remains asynchronous. This bank is not a bubble encoder.
+//
+// KEEP / DONT_TOUCH on the captured bus prevents opt_design from removing
+// registers when the benchmark top exposes only a tiny representative status.
 
 `timescale 1ns/1ps
 
@@ -13,6 +16,7 @@ module tdc_capture_bank #(
     input  logic              clk,
     input  logic              rst_n,
     input  logic [N_TAPS-1:0] taps,
+    (* KEEP = "TRUE", DONT_TOUCH = "TRUE" *)
     output logic [N_TAPS-1:0] captured
 );
 
