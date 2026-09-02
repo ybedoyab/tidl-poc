@@ -6,7 +6,7 @@ Project status: **TRL 2**. Not TRL 3. No laboratory validation.
 | --- | --- |
 | 1 literature evidence | Yes — bibliography and claims register |
 | 2 model-based simulation | Yes — `python -m tidl_poc sim --fast` |
-| 3 RTL/synthesis/implementation | Yes — Kintex-7 CARRY4 TDL. Round 6: 12-case matrix (`docs/evidence/vivado_kintex7/`). Round 7 timing-clean @64: 4/4 impl met 4 ns WNS (`docs/evidence/vivado_kintex7_timing_clean/`). MSWU structural surrogate: 3 local cases (`docs/evidence/vivado_kintex7_mswu_structural/`). Resource/P&R only; not 1 ps / DNL / SSP / WU pulse physics |
+| 3 RTL/synthesis/implementation | Yes — Kintex-7 CARRY4 TDL. Round 6/7 multichain; Round 8 MSWU structural (`docs/evidence/vivado_kintex7_mswu_structural/`); Round 9 MSWU validated (`docs/evidence/vivado_kintex7_mswu_validated/`). Resource/P&R only; not 1 ps / DNL / SSP / WU pulse physics |
 | 4 SPICE / front-end simulation | Workflow + runner; results only after local LTspice batch |
 | 5 physical POC measurement | No |
 
@@ -31,8 +31,8 @@ Project status: **TRL 2**. Not TRL 3. No laboratory validation.
   Round 7 timing-clean @64;
   [docs/evidence/vivado_kintex7_mswu_structural/](../evidence/vivado_kintex7_mswu_structural/)
   MSWU structural surrogate). Multichain 16×8×64: 8192 CARRY4, fully routed,
-  WNS +3.045 ns. MSWU 16ch low-rate: 800 CARRY4, 3002 slices, fully routed,
-  WNS −1.109 ns (benchmark timing not closed). Neither is TDC-bin timing or S14.
+  WNS +3.045 ns. MSWU Round 9 validated 16ch: 800 CARRY4, 2935 slices, WNS +0.162 ns
+  (pipelined shared post). Round 8 preencoder LUT=3 superseded. Neither is TDC-bin timing or S14.
 
 ## What they do not support
 

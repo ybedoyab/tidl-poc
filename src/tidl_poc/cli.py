@@ -121,6 +121,16 @@ def build_parser() -> argparse.ArgumentParser:
     ms.add_argument("--timeout-s", type=float, default=21600.0)
     ms.add_argument("--export-only", action="store_true")
     ms.add_argument("--include-scaling-fallbacks", action="store_true")
+    msv = sub.add_parser(
+        "vivado-mswu-validated",
+        help="Round-9 validated MSWU structural branch (not CI; not a measurement)",
+    )
+    msv.add_argument("--vivado", type=Path, default=None)
+    msv.add_argument("--skip-run", action="store_true")
+    msv.add_argument("--only", type=str, default=None)
+    msv.add_argument("--timeout-s", type=float, default=21600.0)
+    msv.add_argument("--export-only", action="store_true")
+    msv.add_argument("--skip-parallel", action="store_true")
     return parser
 
 
@@ -206,6 +216,30 @@ def main(argv: list[str] | None = None) -> int:
                 f"{row.get('case_id')}: CARRY4 {row.get('mapped_carry4')}/{row.get('expected_carry4')} "
                 f"FF {row.get('mapped_fdre')} LUT {row.get('slice_luts')} slices {row.get('slices')} "
                 f"WNS {row.get('wns_ns')} {row.get('route_status')}"
+            )
+        return 0 if extra.get("synth_ok", 0) > 0 else 2
+    if args.cmd == "vivado-mswu-validated":
+        from tidl_poc.vivado.mswu_validated import run as run_mswu_validated
+
+        result = run_mswu_validated(
+            vivado=args.vivado,
+            skip_run=args.skip_run,
+            only=args.only,
+            timeout_s=args.timeout_s,
+            export_only=args.export_only,
+            skip_parallel=args.skip_parallel,
+        )
+        extra = result["extra"]
+        print("RTL/synthesis/implementation evidence; not a physical measurement")
+        print(f"output_dir={result['output_dir']}")
+        print(f"evidence_dir={result.get('evidence_dir')}")
+        print(f"synth_ok={extra.get('synth_ok')} impl_ok={extra.get('impl_ok')}")
+        for row in extra.get("cases", []):
+            print(
+                f"{row.get('case_id')}: CARRY4 {row.get('mapped_carry4')}/{row.get('expected_carry4')} "
+                f"FF {row.get('mapped_fdre')} LUT {row.get('slice_luts')} slices {row.get('slices')} "
+                f"WNS {row.get('wns_ns')} {row.get('route_status')} "
+                f"preenc_ok={row.get('preenc_lut_ok')}"
             )
         return 0 if extra.get("synth_ok", 0) > 0 else 2
     return 2

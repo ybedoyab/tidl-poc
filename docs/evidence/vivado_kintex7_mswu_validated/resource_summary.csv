@@ -1,0 +1,5 @@
+case_id,channels,preenc_mode,mapped_carry4,mapped_fdre,slice_luts,slices,slices_pct,mapped_bram,wns_ns
+mswu_1ch_core_r9,1,0,50,801,3,155,0.61,0,3.536
+mswu_1ch_preenc_parallel_r9,1,2,50,1053,1895,646,2.55,0,0.161
+mswu_1ch_preenc_seq_r9,1,1,50,1274,434,396,1.56,0,0.221
+mswu_lowrate_16ch_frontends_r9,16,0,800,13112,1038,2935,11.58,0,0.162

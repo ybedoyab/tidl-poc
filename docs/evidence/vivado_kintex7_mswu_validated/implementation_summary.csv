@@ -1,0 +1,5 @@
+case_id,channels,preenc_mode,shared_post,expected_carry4,mapped_carry4,expected_capture_ff_min,mapped_fdre,capture_ff_ok,slice_luts,slice_registers,slices,slices_pct,mapped_bram,wns_ns,tns_ns,control_timing_closed,route_status,fully_routed,expected_tdl_chains,n_chains_reported,n_vertical_runs,n_scattered_chains,n_unmatched_carry4,preenc_lut_ok,preenc_optimized_away,synth_status,impl_status
+mswu_1ch_core_r9,1,0,False,50,50,800,801,True,3,801,155,0.61,0,3.536,0.0,True,fully_routed,True,1,1,1,0,0,True,False,ok,ok
+mswu_1ch_preenc_parallel_r9,1,2,False,50,50,800,1053,True,1895,1041,646,2.55,0,0.161,0.0,True,fully_routed,True,1,1,1,0,0,True,False,ok,ok
+mswu_1ch_preenc_seq_r9,1,1,False,50,50,800,1274,True,434,1263,396,1.56,0,0.221,0.0,True,fully_routed,True,1,1,1,0,0,True,False,ok,ok
+mswu_lowrate_16ch_frontends_r9,16,0,True,800,800,12800,13112,True,1038,13108,2935,11.58,0,0.162,0.0,True,fully_routed,True,16,16,16,0,0,True,False,ok,ok

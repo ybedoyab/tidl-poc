@@ -13,10 +13,13 @@ def generate_mswu_wrap_sv(
     *,
     case_id: str,
     n_channels: int,
-    include_preencoder: bool,
-    shared_post: bool,
+    preenc_mode: int = 0,
+    shared_post: bool = False,
+    include_preencoder: bool | None = None,
 ) -> str:
-    pre = 1 if include_preencoder else 0
+    """Generate benchmark wrap. ``include_preencoder`` is legacy Round-8 alias."""
+    if include_preencoder is not None and preenc_mode == 0:
+        preenc_mode = 1 if include_preencoder else 0
     shared = 1 if shared_post else 0
     return f"""// Generated MSWU structural wrap — {case_id}
 `timescale 1ns/1ps
@@ -27,20 +30,24 @@ module mswu_benchmark_wrap (
     input  logic [{n_channels - 1}:0] wu_arm,
     output logic [{n_channels - 1}:0] bench_status,
     output logic [10:0]             shared_code,
-    output logic                    shared_valid
+    output logic                    shared_valid,
+    output logic [10:0]             preenc_flat [20],
+    output logic                    preenc_flat_valid [20]
 );
   mswu_benchmark_top #(
       .N_CHANNELS({n_channels}),
-      .INCLUDE_PREENCODER({pre}),
+      .PREENC_MODE({preenc_mode}),
       .SHARED_POST({shared})
   ) u_top (
-      .clk          (clk),
-      .rst_n        (rst_n),
-      .hit          (hit),
-      .wu_arm       (wu_arm),
-      .bench_status (bench_status),
-      .shared_code  (shared_code),
-      .shared_valid (shared_valid)
+      .clk               (clk),
+      .rst_n             (rst_n),
+      .hit               (hit),
+      .wu_arm            (wu_arm),
+      .bench_status      (bench_status),
+      .shared_code       (shared_code),
+      .shared_valid      (shared_valid),
+      .preenc_flat       (preenc_flat),
+      .preenc_flat_valid (preenc_flat_valid)
   );
 endmodule
 """
@@ -81,6 +88,8 @@ read_verilog -sv [list \\
   {{{rtl}/mswu_tdl_200.sv}} \\
   {{{rtl}/mswu_capture_quad.sv}} \\
   {{{rtl}/mswu_mbd5_preencoder_surrogate.sv}} \\
+  {{{rtl}/mswu_preenc_seq_scanner.sv}} \\
+  {{{rtl}/mswu_preenc_parallel_banks.sv}} \\
   {{{rtl}/mswu_channel_core.sv}} \\
   {{{rtl}/mswu_lowrate_shared_post.sv}} \\
   {{{rtl}/mswu_benchmark_top.sv}} \\

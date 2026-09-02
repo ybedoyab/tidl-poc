@@ -1,15 +1,13 @@
 // OOC MSWU-inspired structural benchmark top.
 //
-// Variants (parameters frozen in generated wrap):
-//   CORE_ONLY     — TDL + 4 capture banks per channel
-//   WITH_PREENC   — + per-channel MBD=5 pre-encoder surrogate
-//   LOWRATE_MULTI — N independent front-ends + one shared post FSM
+// PREENC_MODE: 0=none, 1=sequential scanner, 2=parallel banks×regions
+// SHARED_POST: 16 independent front-ends + pipelined shared post FSM
 
 `timescale 1ns/1ps
 
 module mswu_benchmark_top #(
     parameter int  N_CHANNELS = 1,
-    parameter bit  INCLUDE_PREENCODER = 1'b0,
+    parameter int  PREENC_MODE = 0,
     parameter bit  SHARED_POST = 1'b0
 ) (
     input  logic                    clk,
@@ -18,31 +16,73 @@ module mswu_benchmark_top #(
     input  logic [N_CHANNELS-1:0]   wu_arm,
     output logic [N_CHANNELS-1:0]   bench_status,
     output logic [10:0]             shared_code,
-    output logic                    shared_valid
+    output logic                    shared_valid,
+    output logic [10:0]             preenc_flat [20],
+    output logic                    preenc_flat_valid [20]
 );
 
-  genvar c;
+  genvar c, i;
   generate
     if (!SHARED_POST) begin : gen_per_channel
+      logic [10:0] codes_0 [4][5];
+      logic        valid_0 [4][5];
+
       for (c = 0; c < N_CHANNELS; c++) begin : gen_ch
-        mswu_channel_core #(
-            .INCLUDE_PREENCODER(INCLUDE_PREENCODER)
-        ) u_ch (
-            .clk          (clk),
-            .rst_n        (rst_n),
-            .hit          (hit[c]),
-            .wu_arm       (wu_arm[c]),
-            .bank_alive   (),
-            .preenc_code  (),
-            .preenc_valid (),
-            .bench_status (bench_status[c])
-        );
+        if (c == 0) begin : ch0
+          mswu_channel_core #(
+              .PREENC_MODE(PREENC_MODE)
+          ) u_ch (
+              .clk           (clk),
+              .rst_n         (rst_n),
+              .hit           (hit[c]),
+              .wu_arm        (wu_arm[c]),
+              .bank_alive    (),
+              .preenc_code   (),
+              .preenc_valid  (),
+              .scan_complete (),
+              .bench_codes   (codes_0),
+              .bench_valid   (valid_0),
+              .bench_status  (bench_status[c])
+          );
+        end else begin : chn
+          mswu_channel_core #(
+              .PREENC_MODE(0)
+          ) u_ch (
+              .clk           (clk),
+              .rst_n         (rst_n),
+              .hit           (hit[c]),
+              .wu_arm        (wu_arm[c]),
+              .bank_alive    (),
+              .preenc_code   (),
+              .preenc_valid  (),
+              .scan_complete (),
+              .bench_codes   (),
+              .bench_valid   (),
+              .bench_status  (bench_status[c])
+          );
+        end
       end
-      assign shared_code  = '0;
-      assign shared_valid = 1'b0;
+
+      for (i = 0; i < 20; i++) begin : gen_flat
+        localparam int BANK = i / 5;
+        localparam int SUB  = i % 5;
+        assign preenc_flat[i]       = codes_0[BANK][SUB];
+        assign preenc_flat_valid[i] = valid_0[BANK][SUB];
+      end
+
+      assign shared_code = preenc_flat[0];
+
+      always_comb begin
+        shared_valid = 1'b0;
+        for (int i = 0; i < 20; i++) begin
+          shared_valid = shared_valid | preenc_flat_valid[i];
+        end
+      end
     end else begin : gen_lowrate
       logic [199:0] captured_flat [N_CHANNELS];
       logic [N_CHANNELS-1:0] cap_valid;
+      logic [10:0] post_codes [5];
+      logic        post_valid [5];
 
       for (c = 0; c < N_CHANNELS; c++) begin : gen_fe
         logic [199:0] taps_k;
@@ -74,8 +114,19 @@ module mswu_benchmark_top #(
           .captured_flat  (captured_flat),
           .shared_code    (shared_code),
           .shared_valid   (shared_valid),
-          .active_channel ()
+          .active_channel (),
+          .bench_codes    (post_codes),
+          .bench_valid    (post_valid)
       );
+
+      for (i = 0; i < 5; i++) begin : gen_post_flat
+        assign preenc_flat[i]       = post_codes[i];
+        assign preenc_flat_valid[i] = post_valid[i];
+      end
+      for (i = 5; i < 20; i++) begin : gen_post_pad
+        assign preenc_flat[i]       = '0;
+        assign preenc_flat_valid[i] = 1'b0;
+      end
     end
   endgenerate
 

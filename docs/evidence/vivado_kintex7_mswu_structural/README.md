@@ -30,6 +30,16 @@ processing may be serialized at 16 events/s.
 
 **No architecture selected solely from Vivado resource evidence.**
 
+## Round 9 supersession
+
+Round 9 validated evidence supersedes the Round 8 **1-channel preencoder LUT=3**
+result for preencoder resource claims. See
+[docs/evidence/vivado_kintex7_mswu_validated/](../vivado_kintex7_mswu_validated/).
+
+Round 8 `mswu_structural_1ch_preencoder` had benchmark observability issues
+(outputs open; `sub_sel` hardwired to 0). Historical numbers remain in this
+directory unchanged.
+
 ## Reproduce
 
 ```text

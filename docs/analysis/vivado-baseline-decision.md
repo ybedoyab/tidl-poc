@@ -110,23 +110,35 @@ Kwiatkowski et al. 2023 (Measurement 209, 112510) at the architectural level
 only — HDL is **not** copied from the paper or third parties. Wave Union pulse
 generation is **not** validated by Vivado.
 
-Runner: `python -m tidl_poc vivado-mswu-structural`.
-Tracked snapshot: [docs/evidence/vivado_kintex7_mswu_structural/](../evidence/vivado_kintex7_mswu_structural/).
+Runner: `python -m tidl_poc vivado-mswu-structural` (Round 8 historical).
+Round 9 validated runner: `python -m tidl_poc vivado-mswu-validated`.
+
+| Snapshot | Path |
+| --- | --- |
+| Round 8 historical | [docs/evidence/vivado_kintex7_mswu_structural/](../evidence/vivado_kintex7_mswu_structural/) |
+| Round 9 validated | [docs/evidence/vivado_kintex7_mswu_validated/](../evidence/vivado_kintex7_mswu_validated/) |
+
+Round 8 `mswu_structural_1ch_preencoder` LUT=3 is **superseded** for preencoder
+resource claims (benchmark observability bug). Round 9 corrects this.
+
+### Round 9 validated cases
 
 | case_id | CARRY4 | FF | LUT | Slices | WNS ns | Route | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `mswu_structural_1ch_core` | 50/50 | 801 | 3 | 155 (0.61%) | +3.536 | fully_routed | TDL + 4 capture banks |
-| `mswu_structural_1ch_preencoder` | 50/50 | 849 | 3 | 155 (0.61%) | +3.536 | fully_routed | + MBD=5 pre-encoder surrogate |
-| `mswu_lowrate_16ch_frontends` | 800/800 | 12835 | 1041 | 3002 (11.84%) | −1.109 | fully_routed | 16 independent front-ends; shared low-rate post; **timing not closed** |
+| `mswu_1ch_core_r9` | 50/50 | 801 | 3 | 155 (0.61%) | +3.536 | fully_routed | TDL + 4 capture banks |
+| `mswu_1ch_preenc_seq_r9` | 50/50 | 1274 | 434 | 396 (1.56%) | +0.221 | fully_routed | sequential MBD=5 scanner; all regions |
+| `mswu_1ch_preenc_parallel_r9` | 50/50 | 1053 | 1895 | 646 (2.55%) | +0.161 | fully_routed | 4×5 parallel encoders (upper bound) |
+| `mswu_lowrate_16ch_frontends_r9` | 800/800 | 13112 | 1038 | 2935 (11.58%) | +0.162 | fully_routed | pipelined shared post; **timing closed** |
+
+Placement (Round 9 parser): 1ch — 1/1 vertical, 0 scattered; 16ch — 16/16 vertical, 0 scattered.
 
 Capture FF min: 800/channel (4×200 taps); 12800 @16ch — both met. CARRY4
 formula: 50 per TDL (200 logical taps / 4 CO per CARRY4).
 
-**Structural reading:** MSWU surrogate @16ch uses far fewer slices than
-multichain Round 7 (3002 vs 13669), lowering resource extrapolation risk for
-a single-TDL topology. The 16ch case failed the 4 ns synchronous benchmark;
-that is not metrology but is an implementation-risk flag. Do **not** select
-MSWU-B from these results alone.
+**Structural reading:** MSWU validated @16ch uses far fewer slices than
+multichain Round 7 (2935 vs 13669). Round 9 pipelined shared post closes the
+4 ns synchronous benchmark (+0.162 ns). That is not metrology and does not
+validate Wave Union pulse physics. Do **not** select MSWU-B from these results alone.
 
 See [architecture-trade-study.md](architecture-trade-study.md) and
 `scripts/vivado/README.md`.

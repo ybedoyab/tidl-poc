@@ -14,6 +14,13 @@ Classification: RTL/synthesis/implementation evidence only.
 | MBD partitions | 5 × 40 bits | Bubble-resistant decomposition surrogate |
 | Pre-encoder output | 11 bits/bank | Project surrogate, not paper bit-equivalence |
 
-Vivado benchmarks: `python -m tidl_poc vivado-mswu-structural`.
+| Pre-encoder modes | seq (1 scanner) / parallel (4×5) | Round 9 validated observability |
 
-Tracked evidence: `docs/evidence/vivado_kintex7_mswu_structural/`.
+Vivado benchmarks: `python -m tidl_poc vivado-mswu-validated` (Round 9).
+
+Tracked evidence:
+- Round 8 historical: `docs/evidence/vivado_kintex7_mswu_structural/`
+- Round 9 validated: `docs/evidence/vivado_kintex7_mswu_validated/`
+
+Round 8 `mswu_structural_1ch_preencoder` LUT=3 was invalid (outputs open;
+sub_sel hardwired to 0). Round 9 exercises all five MBD regions.

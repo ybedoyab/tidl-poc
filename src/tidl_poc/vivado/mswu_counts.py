@@ -11,6 +11,11 @@ MSWU_CAPTURE_BANKS = 4
 MSWU_MBD_SUB_BITS = 40
 MSWU_MBD_PARTITIONS = 5
 MSWU_PREENC_OUT_BITS = 11
+# Minimum LUT delta vs core-only for a valid preencoder resource measurement.
+MSWU_MIN_PREENC_LUT_DELTA = 40
+# Sequential mode: 1 scanner + 1 encoder; parallel: 20 encoders.
+MSWU_PREENC_SEQ_INSTANCES = 1
+MSWU_PREENC_PARALLEL_INSTANCES = 20
 
 
 @dataclass(frozen=True)

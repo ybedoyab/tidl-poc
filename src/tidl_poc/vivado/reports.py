@@ -226,43 +226,76 @@ def parse_carry_locs(text: str) -> list[dict[str, Any]]:
         chain = None
         ch_m = re.search(r"gen_chain\[(\d+)\]", cell)
         chn_m = re.search(r"gen_ch\[(\d+)\]", cell)
+        fe_m = re.search(r"gen_fe\[(\d+)\]", cell)
         carry_m = re.search(r"gen_carry\[(\d+)\]", cell)
+        tdl_m = re.search(r"(.+?/u_chain)/gen_carry\[", cell)
         rows.append(
             {
                 "cell": cell,
                 "loc": loc,
                 "x": int(match.group(1)) if match else None,
                 "y": int(match.group(2)) if match else None,
-                "channel": int(chn_m.group(1)) if chn_m else None,
+                "channel": (
+                    int(chn_m.group(1))
+                    if chn_m
+                    else (int(fe_m.group(1)) if fe_m else None)
+                ),
                 "chain": int(ch_m.group(1)) if ch_m else None,
                 "carry_index": int(carry_m.group(1)) if carry_m else None,
+                "tdl_path": tdl_m.group(1) if tdl_m else None,
             }
         )
     return rows
 
 
-def placement_scatter_metrics(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    """True if consecutive CARRY4 in a chain do not share a slice column."""
+def _chain_group_key(row: dict[str, Any]) -> tuple[Any, ...] | None:
+    if row.get("x") is None or row.get("carry_index") is None:
+        return None
+    if row.get("chain") is not None:
+        return (row.get("channel"), row.get("chain"))
+    if row.get("tdl_path") is not None:
+        return (row.get("channel"), row.get("tdl_path"))
+    if row.get("channel") is not None:
+        return (row.get("channel"), "mswu_tdl")
+    return ("mswu_tdl", row.get("cell", "").split("/gen_carry")[0])
+
+
+def placement_scatter_metrics(
+    rows: list[dict[str, Any]], *, expected_chains: int | None = None
+) -> dict[str, Any]:
+    """Group CARRY4 cells into chains; count vertical vs scattered placement."""
     from collections import defaultdict
 
-    groups: dict[tuple[Any, Any], list[dict[str, Any]]] = defaultdict(list)
+    groups: dict[tuple[Any, ...], list[dict[str, Any]]] = defaultdict(list)
+    unmatched = 0
     for row in rows:
-        if row.get("x") is None or row.get("chain") is None:
+        key = _chain_group_key(row)
+        if key is None:
+            unmatched += 1
             continue
-        groups[(row.get("channel"), row.get("chain"))].append(row)
+        groups[key].append(row)
     scattered = 0
     vertical = 0
+    malformed = 0
     for members in groups.values():
         members.sort(key=lambda r: r.get("carry_index") or 0)
         xs = {r["x"] for r in members if r["x"] is not None}
         ys = [r["y"] for r in members if r["y"] is not None]
+        if len(members) < 2:
+            malformed += 1
         if len(xs) > 1:
             scattered += 1
         elif ys and ys == list(range(min(ys), min(ys) + len(ys))):
             vertical += 1
-    return {
+    out = {
         "n_chains_reported": len(groups),
         "n_scattered_chains": scattered,
         "n_vertical_runs": vertical,
+        "n_unmatched_carry4": unmatched,
+        "n_malformed_chains": malformed,
         "scattered": scattered > 0,
     }
+    if expected_chains is not None:
+        out["expected_tdl_chains"] = expected_chains
+        out["chain_count_ok"] = len(groups) == expected_chains
+    return out

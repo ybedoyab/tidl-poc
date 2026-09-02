@@ -10,7 +10,7 @@ Assumptions are not measurements. Each simulation tags parameters as
 3. Digital 1 ps quantization is not 1 ps physical resolution.
 4. Mao et al. 2022 resolution TC (0.0002 ps/°C) is not a residual timing-error TC.
 5. Mao 10-chain SSP used MCS, not independent-chain averaging. The 1/N model is a fit.
-6. No PSU is selected. ADCMP580 is a **tracked front-end candidate**, not a frozen comparator. First Vivado **branch** is Kintex-7 / CARRY4 / 8 chains on XC7K160T; 16×8×64 structurally fit and routed (53.92% slices Round 7). MSWU-inspired structural surrogate: 16×200-tap TDL @ 3002 slices (11.84%), fully routed but WNS −1.109 ns on 4 ns benchmark. That is not measured part qualification and not 1 ps / DNL / SSP / WU pulse physics. MSWU-B is a second branch, not a replacement.
+6. No PSU is selected. ADCMP580 is a **tracked front-end candidate**, not a frozen comparator. First Vivado **branch** is Kintex-7 / CARRY4 / 8 chains on XC7K160T; 16×8×64 structurally fit and routed (53.92% slices Round 7). MSWU Round 9 validated: 16×200-tap TDL @ 2935 slices (11.58%), WNS +0.162 ns on pipelined shared post. Round 8 MSWU preencoder LUT=3 superseded. Not 1 ps / DNL / SSP / WU pulse physics. MSWU-B is a second branch, not a replacement.
 7. No Bluetooth or Wi-Fi.
 8. TRL is 2. TRL 6 is a future funded-POC target.
 9. Kwiatkowski 2023 numbers (including 0.525 ps/°C) are authors' results. They are not this board.
@@ -32,7 +32,7 @@ Assumptions are not measurements. Each simulation tags parameters as
 | A10 | UDP drop 8%, duplicate 3%, reorder 5% | packet-logging | Replace with LAN profile |
 | A11 | Dual-redundant AC and IEC 61000 can be deferred to POC mechanical/EMC design | S8 | Do not treat as solved |
 | A12 | ≥10 year full-time operation is a design target, not MTBF evidence | reliability-plan | Needs parts stress, wear-out, and maintenance concept |
-| A13 | Simultaneous 16-channel is preferred over switching | S7 | Structural 16×8×64 multichain fitted XC7K160T (53.92% slices R7); MSWU surrogate 16ch @11.84% slices but WNS −1.109 ns; revisit if datapath/I/O still fail |
+| A13 | Simultaneous 16-channel is preferred over switching | S7 | Multichain 16×8×64 @ 53.92% slices R7; MSWU R9 validated 16ch @ 11.58% slices, WNS +0.162 ns; revisit if I/O/datapath still fail |
 | A14 | First-order `delta_t = y * tau` for 5/10/20 ps at 1 s | reference-stability | Replace with ADEV/MDEV/TDEV on measured 10 MHz |
 | A15 | 0.525 ps/°C channel-offset TC from Kwiatkowski 2023 used as an extra literature scenario | pvt / mswu-literature | Do not treat as this board; do not interpolate recalibration between temperatures |
 | A16 | Paper per-channel FIFOs / 21.5 BRAM can be reduced at 16 events/s | low-rate datapath | MSWU low-rate 16ch surrogate used 0 BRAM (structural only); paper FIFO hypothesis not yet closed |
