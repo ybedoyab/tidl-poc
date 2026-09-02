@@ -1,0 +1,22 @@
+1. Slice Logic
+--------------
+| Slice LUTs                 |  1028 |     0 |   101400 |  1.01 |
+| LUT as Logic               |  1028 |     0 |   101400 |  1.01 |
+| LUT as Memory              |     0 |     0 |    35000 |  0.00 |
+| Slice Registers            |  2056 |     0 |   202800 |  1.01 |
+| Register as Flip Flop      |  2056 |     0 |   202800 |  1.01 |
+| Register as Latch          |     0 |     0 |   202800 |  0.00 |
+
+2. Slice Logic Distribution
+---------------------------
+| Slice                      |   520 |     0 |    25350 |  2.05 |
+| SLICEL                     |   400 |     0 |    15850 |  2.52 |
+| SLICEM                     |   120 |     0 |     9500 |  1.26 |
+
+8. Primitives
+-------------
+| FDRE                       |  2048 |
+| CARRY4                     |   512 |
+| LUT1                       |    16 |
+| LUT2                       |    32 |
+| LUT6                       |   980 |

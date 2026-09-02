@@ -69,13 +69,16 @@ the internal log is the measurement of record (S10, S13).
 
 Kintex-7 / CARRY4 with **8 parallel chains per channel** is the first synthesis
 branch ([analysis/vivado-baseline-decision.md](analysis/vivado-baseline-decision.md)).
-Report resource scaling at 1, 4, 8, then 16 channels. MSWU type B is a
-**high-upside second branch** after those reports, not a replacement of this
-first flow. Any MSWU-B RTL must be original (no copied paper HDL). See
+Vivado 2026.1 mapped and fully routed 1 / 4 / 8 / 16 channels at 64
+CARRY4/chain on XC7K160T (16×64: 8192 CARRY4, 10,980 slices / 43.3%).
+Tracked snapshot: [evidence/vivado_kintex7/](evidence/vivado_kintex7/).
+MSWU type B remains a **high-upside second branch**, not a replacement.
+Any MSWU-B RTL must be original (no copied paper HDL). See
 [analysis/architecture-trade-study.md](analysis/architecture-trade-study.md)
 and [analysis/low-rate-16-channel-datapath.md](analysis/low-rate-16-channel-datapath.md).
 
 Other families remain candidates, not selected: low-end Kintex UltraScale
-(XCKU025 / XCKU035); basic Kintex UltraScale+ (XCKU3P / XCKU5P). `TIDL_PART`
-must still be set in Tcl. No utilization or Fmax numbers exist in this
-repository.
+(XCKU025 / XCKU035); basic Kintex UltraScale+ (XCKU3P / XCKU5P).
+`scripts/vivado/run_kintex7_baseline.py` discovers an installed Kintex-7 part
+(prefer XC7K160T-2). Reports are RTL/synthesis/implementation evidence, not
+1 ps resolution. The older `tidl_top` Tcl flow still needs `TIDL_PART` if used.

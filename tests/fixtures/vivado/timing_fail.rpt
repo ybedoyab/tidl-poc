@@ -1,0 +1,15 @@
+Copyright 2026 Advanced Micro Devices, Inc.
+
+------------------------------------------------------------------------------------------------
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints
+    -------      -------  ---------------------  -------------------
+     -1.250      -12.500                     48                 2104
+
+Timing constraints are not met.
+
+Worst Negative Slack (WNS): -1.250 ns
+Total Negative Slack (TNS): -12.500 ns

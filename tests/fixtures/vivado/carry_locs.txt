@@ -1,0 +1,6 @@
+# cell loc bel
+gen_ch[0].u_ch.gen_chain[0].u_chain.gen_carry[0].u_carry SLICE_X10Y20 CARRY4
+gen_ch[0].u_ch.gen_chain[0].u_chain.gen_carry[1].u_carry SLICE_X10Y21 CARRY4
+gen_ch[0].u_ch.gen_chain[0].u_chain.gen_carry[2].u_carry SLICE_X10Y22 CARRY4
+gen_ch[0].u_ch.gen_chain[1].u_chain.gen_carry[0].u_carry SLICE_X12Y20 CARRY4
+gen_ch[0].u_ch.gen_chain[1].u_chain.gen_carry[1].u_carry SLICE_X14Y8 CARRY4

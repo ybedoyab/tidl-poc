@@ -1,12 +1,13 @@
-# Kintex-7 constraints (placeholder)
+# Kintex-7 constraints
 
-No part is selected. Do not treat this file as a timing result.
+`tdc_benchmark_ooc.xdc` is an out-of-context resource/P&R file:
 
-When a device is chosen:
+- 4 ns `clk` for capture/control FFs only (not TDL bin period)
+- narrow false paths from asynchronous `hit[*]` and `rst_n`
+- no board package pins
 
-- Create a pblock / RLOC strategy for the CARRY4 TDL (`tdc_carry4_7series`).
-- Constrain the sampling clock from the qualified 10 MHz path.
-- Record placement of TDC cells in the Vivado report script.
+Vertical CARRY4 LOC assignment is generated at run time from the selected
+part’s SLICE sites (`scripts/vivado/run_kintex7_baseline.py`). Do not invent
+coordinates in this folder.
 
-There are no `create_clock` periods here because a fabricated period would look
-like implementation evidence.
+`tidl.xdc` remains a board-level placeholder.

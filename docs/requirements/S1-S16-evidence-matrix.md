@@ -78,7 +78,7 @@ and maintainability evidence, design target ≥10 years full-time operation.
 | Proposed subsystem/technique | 50 ohm SMA female per channel. |
 | Literature support | RF practice. |
 | Current simulation evidence | Front-end jitter uses slew and voltage noise, not impedance. ADCMP580 datasheet: on-chip 50 ohm at both inputs. Local LTspice characterization: `scripts/ltspice/run_adcmp580.py` (SPICE/front-end simulation). |
-| Current gap | No laboratory 1 PPS edge. CML-to-Kintex-7 not in the SPICE bench. Challenge amplitude/rise unspecified. |
+| Current gap | No laboratory 1 PPS edge. Direct DC ADCMP580 CML → Kintex-7 LVDS is not a valid baseline (CM ≈ −0.2 V vs LVDS VICM min ≈ +0.3 V); see [cml-to-kintex7-interface-options.md](../analysis/cml-to-kintex7-interface-options.md). Challenge amplitude/rise unspecified. |
 | POC validation method | S11 / TDR per channel. |
 | Pass/fail acceptance criterion | TBD. |
 
@@ -88,8 +88,8 @@ and maintainability evidence, design target ≥10 years full-time operation.
 | --- | --- |
 | Proposed subsystem/technique | Preferred: 16 simultaneous independently timestamped channels. Alternate: analog/digital switching, including hot switching. |
 | Literature support | Bayer and Traxler 2011 (48 ch); Lusardi 2019; Garzetti 2021; Kwiatkowski 2023 two-channel XC7K160 resources (literature, high-rate instrument). Resource scaling is device-specific (Morabito 2024). |
-| Current simulation evidence | 16-channel covariance/skew model (`channel-scaling`). RTL top parameter `N_CHANNELS=16`. Naive 16 × paper-channel arithmetic in `mswu-literature` (not a fit claim). |
-| Current gap | No utilization numbers; switching path not designed; crosstalk coefficient assumed. Paper FIFOs are not our architecture. |
+| Current simulation evidence | 16-channel covariance/skew model (`channel-scaling`). RTL top parameter `N_CHANNELS=16`. Naive 16 × paper-channel arithmetic in `mswu-literature` (not a fit claim). Kintex-7 structural TDL: 16×8×64 mapped 8192 CARRY4 and fully routed on XC7K160T at 10,980 slices / 43.3% (`docs/evidence/vivado_kintex7/`; not S14). |
+| Current gap | Switching path not designed; crosstalk coefficient assumed. Paper FIFOs are not our architecture. Vivado utilization is resource evidence, not simultaneous 16-channel metrology. |
 | POC validation method | Simultaneous 16-channel injection vs single-active; if switching is chosen, hot-switch transient test. |
 | Pass/fail acceptance criterion | 16 channels meet S14 simultaneously (preferred) or documented switch/settle budget (alternate). TBD numerically until error budget is closed. |
 
@@ -165,8 +165,8 @@ and maintainability evidence, design target ≥10 years full-time operation.
 | --- | --- |
 | Proposed subsystem/technique | Signed coarse counter + fine TDC; code-density and PVT calibration; front-end slew control. |
 | Literature support | Mao 2022 (SSP/resolution on Kintex-7 MCS, **literature only**); Kwiatkowski 2023 (MSWU-B on XC7K160: ~0.4 ps mean resolution, interval std generally <4 ps / up to 5.2 ps near 10 ns, **authors' FPGA**, not this project; low LSB is not low INL); Pan 2014 (20 ps TDC with temperature correction, **authors' FPGA**, not this project). |
-| Current simulation evidence | Coarse+fine arithmetic; parallel-chain SSP model; synthetic calibration; error-budget scenarios; PVT sweeps including a 0.525 ps/°C literature offset scenario; front-end slew contours; `mswu-literature` calculator. |
-| Current gap | No FPGA, no SPICE, no closed error budget with measured terms. Illustrative RSS can sit near 20 ps while conservative/stress scenarios fail — that is intentional. |
+| Current simulation evidence | Coarse+fine arithmetic; parallel-chain SSP model; synthetic calibration; error-budget scenarios; PVT sweeps including a 0.525 ps/°C literature offset scenario; front-end slew contours; `mswu-literature` calculator. Kintex-7 CARRY4 structural P&R (`docs/evidence/vivado_kintex7/`) is **not** S14. |
+| Current gap | No physical TDC bins, no closed error budget with measured terms. Vivado WNS is capture-clock timing, not 1 ps resolution. Illustrative RSS can sit near 20 ps while conservative/stress scenarios fail — that is intentional. |
 | POC validation method | Start-stop statistical tests; code-density DNL/INL; temperature sweep 10–40 °C; ADEV of the reference (NIST SP 1065). |
 | Pass/fail acceptance criterion | Precision: RMS of repeated intervals ≤ 20 ps under stated conditions. Accuracy: \|mean error vs traceable interval\| ≤ 20 ps. Resolution: demonstrated physical LSB / effective resolution ≤ 1 ps **without** equating digital quantization to physics. Range: represent and measure −1 s to +1 s. All TBD until hardware exists. |
 

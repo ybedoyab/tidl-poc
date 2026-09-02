@@ -1,11 +1,5 @@
-// 7-series CARRY4 tapped-delay-line placeholder.
-//
-// TODO: instantiate CARRY4 primitives only after a Kintex-7 part is selected.
-// TODO: apply RLOC / Pblock constraints in constraints/kintex7/.
-// TODO: physical calibration (code-density) is mandatory; this file has no delays.
-//
-// A generic `assign #1ps` delay line would be neither synthesizable nor accurate.
-// Do not add one.
+// 7-series CARRY4 placeholder used by tidl_top only.
+// The original structural TDL is rtl/tdc/kintex7/. Do not add `#1ps` delays.
 
 `timescale 1ns/1ps
 

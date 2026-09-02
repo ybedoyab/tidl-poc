@@ -14,7 +14,12 @@ Coefficients are engineering allocations (see [assumptions.md](../assumptions.md
 A7). They are not FPGA crosstalk measurements.
 
 First Vivado resource scaling is 1 → 4 → 8 → 16 channels on Kintex-7 / 8-chain
-TDL ([vivado-baseline-decision.md](vivado-baseline-decision.md)).
+TDL, with CARRY4 length 32/48/64 swept
+([vivado-baseline-decision.md](vivado-baseline-decision.md);
+[docs/evidence/vivado_kintex7/](../evidence/vivado_kintex7/)).
+The 16×8×64 topology mapped 8192 CARRY4 and fully routed on XC7K160T
+(10,980 slices, 43.3%). Those reports are structural/resource evidence, not
+16-channel metrology.
 
 Naive replication of the Kwiatkowski 2023 complete measurement channel is
 **not** this architecture. At 16 × 1 PPS the paper's deep FIFOs are not

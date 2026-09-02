@@ -9,6 +9,8 @@ from typing import Any
 from tidl_poc import (
     MEASUREMENT_DISCLAIMER,
     RESULT_CLASSIFICATION,
+    RTL_DISCLAIMER,
+    RTL_RESULT_CLASSIFICATION,
     SPICE_DISCLAIMER,
     SPICE_RESULT_CLASSIFICATION,
 )
@@ -16,6 +18,7 @@ from tidl_poc import (
 ALLOWED_RESULT_CLASSIFICATIONS = (
     RESULT_CLASSIFICATION,
     SPICE_RESULT_CLASSIFICATION,
+    RTL_RESULT_CLASSIFICATION,
 )
 
 METADATA_REQUIRED_KEYS = (
@@ -61,7 +64,12 @@ def build_metadata(
         raise ValueError(f"unsupported result_classification {classification!r}")
     text = disclaimer
     if text is None:
-        text = SPICE_DISCLAIMER if classification == SPICE_RESULT_CLASSIFICATION else MEASUREMENT_DISCLAIMER
+        if classification == SPICE_RESULT_CLASSIFICATION:
+            text = SPICE_DISCLAIMER
+        elif classification == RTL_RESULT_CLASSIFICATION:
+            text = RTL_DISCLAIMER
+        else:
+            text = MEASUREMENT_DISCLAIMER
     payload: dict[str, Any] = {
         "script_name": script_name,
         "git_commit": git_commit(),

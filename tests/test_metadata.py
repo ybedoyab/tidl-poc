@@ -27,6 +27,21 @@ def test_spice_classification_is_allowed():
     assert MEASUREMENT_DISCLAIMER in payload["disclaimer"] or "not a physical measurement" in payload["disclaimer"].lower()
 
 
+def test_rtl_classification_is_allowed():
+    from tidl_poc import RTL_DISCLAIMER, RTL_RESULT_CLASSIFICATION
+
+    payload = build_metadata(
+        script_name="vivado",
+        random_seed=1,
+        input_parameters={},
+        result_classification=RTL_RESULT_CLASSIFICATION,
+        disclaimer=RTL_DISCLAIMER,
+    )
+    assert validate_metadata_schema(payload) == []
+    assert payload["result_classification"] == RTL_RESULT_CLASSIFICATION
+    assert "not a physical measurement" in payload["disclaimer"].lower()
+
+
 def test_schema_rejects_missing_disclaimer():
     payload = build_metadata(script_name="x", random_seed=1, input_parameters={})
     payload["disclaimer"] = "nope"

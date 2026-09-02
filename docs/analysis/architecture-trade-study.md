@@ -1,7 +1,9 @@
 # Architecture trade study
 
 Classification of scores below: **literature evidence** and **engineering judgement
-at TRL 2**. No local FPGA implementation evidence exists.
+at TRL 2**. Local Kintex-7 CARRY4 work is **RTL/synthesis/implementation
+evidence** only (resource, placement, route, control-clock timing). It is not
+physical timing measurement and does not choose the architecture on metrology.
 
 Scoring is 1 (poor for this challenge) to 5 (strong for this challenge). Scores
 are not measurements.
@@ -129,12 +131,19 @@ implementation or closest legally original structural approximation.
 
 ### Decision gate
 
-Do not force either branch to win.
+Do not force either branch to win. Do **not** choose multichain or MSWU-B
+solely from synthesis. Resource and place/route feasibility can lower
+12-month risk. Metrological performance (resolution, DNL, SSP, accuracy)
+still comes from literature until a physical POC.
 
-After the first 1 / 4 / 8 / 16 **multichain** Vivado reports exist, implement
-**one** MSWU-B single-channel resource-only / structural branch (or the closest
-legally original approximation), then compare resource use and implementation
-risk.
+The first 1 / 4 / 8 / 16 **multichain** Vivado 2026.1 reports exist
+([docs/evidence/vivado_kintex7/](../evidence/vivado_kintex7/)). A 16-channel,
+eight-chain, 64-CARRY4 topology mapped 8192 CARRY4 and fully routed on
+XC7K160T at 10,980 slices (43.3%). That is structural/resource feasibility
+only. Next: implement **one** MSWU-B single-channel resource-only /
+structural branch (or the closest legally original approximation), then
+compare resource use and implementation risk. Do not freeze TDL length as
+“enough for 1 ps”. Do not pick a branch from these reports alone.
 
 Naive 16 × paper-channel BRAM arithmetic can exceed the XC7K160 total inferred
 from Table 2 percentages. That does **not** prove 16 channels cannot fit.
@@ -152,9 +161,11 @@ and factory test, not as the measurement path.
 This recommendation follows the table and the two-branch gate. It is not a claim
 that multi-chain or MSWU-B meets S14 on an unselected FPGA.
 
-**First Vivado baseline (decision, not evidence):** Kintex-7 / CARRY4, 8 chains
-per channel, synthesis scaling 1 → 4 → 8 → 16. Details:
-[vivado-baseline-decision.md](vivado-baseline-decision.md).
+**First Vivado baseline:** Kintex-7 / CARRY4, 8 chains per channel, channel
+scaling 1 → 4 → 8 → 16, TDL length sweep 32/48/64 CARRY4 per chain.
+Vivado 2026.1 on `xc7k160tffg676-2` mapped and fully routed the 16×8×64
+topology (10,980 slices, 43.3%). Implementation evidence is structural
+only. Details: [vivado-baseline-decision.md](vivado-baseline-decision.md).
 
 ## What would change the recommendation
 

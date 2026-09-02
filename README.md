@@ -25,10 +25,14 @@ Every numerical result must be one of:
 4. SPICE/front-end simulation
 5. physical POC measurement
 
-At this stage, classes 1–2 exist. Class 3 is scaffolding only (no timing
-closure or utilization numbers). Class 4 is an LTspice workflow plus local
-batch results when `scripts/ltspice/run_adcmp580.py` succeeds (SPICE/front-end
-simulation, not lab data). Class 5 does not exist.
+At this stage, classes 1–2 exist. Class 3 is an original Kintex-7 CARRY4 TDL
+plus a Vivado 2026.1 OOC matrix on `xc7k160tffg676-2` (12 synthesis cases;
+6 implemented). Tracked snapshot: [docs/evidence/vivado_kintex7/](docs/evidence/vivado_kintex7/).
+Resource, placement, and route evidence only — not 1 ps resolution and not
+physical timing. A 16-channel × 8-chain × 64-CARRY4 topology mapped 8192
+CARRY4 and fully routed using 10,980 slices (43.3%). Class 4 is an LTspice
+workflow plus local batch results when `scripts/ltspice/run_adcmp580.py`
+succeeds (SPICE/front-end simulation, not lab data). Class 5 does not exist.
 
 Claims tracking: [docs/competition/claims-register.md](docs/competition/claims-register.md).
 Requirement matrix: [docs/requirements/S1-S16-evidence-matrix.md](docs/requirements/S1-S16-evidence-matrix.md).
@@ -93,16 +97,20 @@ optional 1e7-sample calibration case. Generated files under `outputs/` are
 gitignored. Each run writes CSV/JSON, PNG/SVG, and a metadata JSON that
 labels the result as model-based simulation.
 
-Vivado is not required for CI. Tcl under `scripts/vivado/` is preparation only.
+Vivado is not required for CI. Kintex-7 structural TDL:
+`python scripts/vivado/run_kintex7_baseline.py` (or `python -m tidl_poc vivado-baseline`).
+Re-parse completed local reports with `--export-only`. Raw trees stay under
+gitignored `outputs/vivado_kintex7/`.
 
 ## Repository map
 
 - `docs/` requirements, analysis, competition evidence
+- `docs/evidence/vivado_kintex7/` compact tracked Vivado snapshot (not raw tool output)
 - `references/` bibliography (no paywalled PDFs)
 - `simulations/` experiment entry points
 - `src/tidl_poc/` models and CLI
 - `spice/` LTspice testbench + runner (results under gitignored `outputs/spice_adcmp580/`)
-- `rtl/` SystemVerilog scaffolding
+- `rtl/` original Kintex-7 CARRY4 TDL under `rtl/tdc/kintex7/` plus scaffolding
 - `tb/` arithmetic/protocol testbenches
 - `constraints/` family folders (no fake timing numbers)
 - `tests/` unit tests

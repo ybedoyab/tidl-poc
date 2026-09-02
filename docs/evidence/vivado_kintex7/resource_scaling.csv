@@ -1,0 +1,13 @@
+case_id,channels,chains_per_channel,carry4_per_chain,expected_carry4,mapped_carry4,expected_taps,expected_capture_ff_min,mapped_fdre,carry4_optimized_away,slice_luts,slice_registers,slices,slice_luts_pct,slice_registers_pct,slices_pct,utilization_source,synth_status,impl_status,runner_status
+ch01_nch08_c4_32,1,8,32,256,256,1024,1024,1027,False,218,1027,416,0.21,0.51,1.64,impl,ok,ok,succeeded
+ch01_nch08_c4_48,1,8,48,384,384,1536,1536,1539,False,320,1539,560,0.32,0.76,2.21,impl,ok,ok,succeeded
+ch01_nch08_c4_64,1,8,64,512,512,2048,2048,2051,False,416,2051,711,0.41,1.01,2.8,impl,ok,ok,succeeded
+ch04_nch08_c4_32,4,8,32,1024,1024,4096,4096,4105,False,874,4105,,0.86,2.02,,synth,ok,skipped,succeeded
+ch04_nch08_c4_48,4,8,48,1536,1536,6144,6144,6153,False,1290,6153,,1.27,3.03,,synth,ok,skipped,succeeded
+ch04_nch08_c4_64,4,8,64,2048,2048,8192,8192,8201,False,1658,8201,2611,1.64,4.04,10.3,impl,ok,ok,succeeded
+ch08_nch08_c4_32,8,8,32,2048,2048,8192,8192,8209,False,1747,8209,,1.72,4.05,,synth,ok,skipped,succeeded
+ch08_nch08_c4_48,8,8,48,3072,3072,12288,12288,12305,False,2579,12305,,2.54,6.07,,synth,ok,skipped,succeeded
+ch08_nch08_c4_64,8,8,64,4096,4096,16384,16384,16401,False,3322,16401,5319,3.28,8.09,20.98,impl,ok,ok,succeeded
+ch16_nch08_c4_32,16,8,32,4096,4096,16384,16384,16417,False,3492,16417,,3.44,8.1,,synth,ok,skipped,succeeded
+ch16_nch08_c4_48,16,8,48,6144,6144,24576,24576,24609,False,5156,24609,,5.08,12.13,,synth,ok,skipped,succeeded
+ch16_nch08_c4_64,16,8,64,8192,8192,32768,32768,32801,False,6635,32801,10980,6.54,16.17,43.31,impl,ok,ok,recovered_after_timeout

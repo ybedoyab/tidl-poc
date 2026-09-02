@@ -7,6 +7,8 @@ import json
 import sys
 from collections.abc import Callable
 
+from pathlib import Path
+
 from tidl_poc import DEFAULT_SEED
 from tidl_poc.common.metadata import validate_metadata_schema
 from tidl_poc.common.paths import outputs_dir
@@ -77,6 +79,25 @@ def build_parser() -> argparse.ArgumentParser:
     sim.add_argument("--all", action="store_true", dest="run_all", help="include optional heavy cases")
     sim.add_argument("--seed", type=int, default=DEFAULT_SEED)
     sim.add_argument("--verify-schema", action="store_true", help="validate metadata JSON after running")
+    vb = sub.add_parser(
+        "vivado-baseline",
+        help="Kintex-7 structural TDC synthesis/implementation (not CI; not a measurement)",
+    )
+    vb.add_argument("--vivado", type=Path, default=None, help="path to vivado.bat / vivado")
+    vb.add_argument("--impl-all", action="store_true", help="place/route every matrix case (slow)")
+    vb.add_argument("--skip-run", action="store_true", help="generate Tcl/CSV scaffolding without launching Vivado")
+    vb.add_argument("--only", type=str, default=None, help="run a single case id")
+    vb.add_argument(
+        "--timeout-s",
+        type=float,
+        default=21600.0,
+        help="per-case Vivado timeout seconds (default 6 h)",
+    )
+    vb.add_argument(
+        "--export-only",
+        action="store_true",
+        help="re-parse existing outputs/vivado_kintex7 reports; do not launch Vivado",
+    )
     return parser
 
 
@@ -97,4 +118,27 @@ def main(argv: list[str] | None = None) -> int:
                 return 1
         print("simulations complete; outputs are model-based simulation, not physical measurement")
         return 0
+    if args.cmd == "vivado-baseline":
+        from tidl_poc.vivado.baseline import compact_resource_line, run as run_vivado_baseline
+
+        result = run_vivado_baseline(
+            vivado=args.vivado,
+            skip_run=args.skip_run,
+            impl_all=args.impl_all,
+            only=args.only,
+            timeout_s=args.timeout_s,
+            export_only=args.export_only,
+        )
+        extra = result["extra"]
+        print("RTL/synthesis/implementation evidence; not a physical measurement")
+        print(f"output_dir={result['output_dir']}")
+        print(f"evidence_dir={result.get('evidence_dir')}")
+        print(f"vivado_found={'yes' if extra.get('vivado_found') else 'no'}")
+        print(f"vivado_version={extra.get('vivado_version')}")
+        print(f"part={extra.get('part')}")
+        print(f"synth_ok={extra.get('synth_ok')} synth_failed={extra.get('synth_failed')} synth_skipped={extra.get('synth_skipped')}")
+        print(f"impl_ok={extra.get('impl_ok')} impl_failed={extra.get('impl_failed')} impl_skipped={extra.get('impl_skipped')}")
+        for n_ch in (1, 4, 8, 16):
+            print(compact_resource_line(extra, n_ch, 64))
+        return 0 if extra.get("discover_error") is None or extra.get("synth_ok", 0) > 0 else 2
     return 2
