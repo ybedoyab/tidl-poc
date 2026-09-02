@@ -1,84 +1,95 @@
-# Architecture (hypothesis)
+# Architecture (hypothesis → POC baseline candidates)
 
-This document describes a **baseline hypothesis**, not a frozen implementation.
-The trade study in [analysis/architecture-trade-study.md](analysis/architecture-trade-study.md)
-must be allowed to change the fine-TDC candidate.
+This document describes the **POC-level baseline candidates** for electrical,
+reference-clock, and UTC alignment subsystems. The **fine TDC** branch is still
+**not** selected from Vivado alone
+([analysis/architecture-trade-study.md](analysis/architecture-trade-study.md)).
+
+Maturity: **TRL 2**. No physical validation. Target after funded POC: **TRL 5/6**.
 
 ## Context
 
 - Challenge: 16-channel Time Interval Data Logger (TIDL).
-- Maturity: TRL 2. A future ≤12-month funded POC is aimed at TRL 6.
-- Radio: none. Ethernet only.
+- Radio: **none**. No Wi-Fi. No Bluetooth. Ethernet only.
 
-## Block flow
+## System block diagram
 
-```text
-50 ohm SMA front-end (10 MHz, 1 PPS ref, 16x 1 PPS meas)
-        -> per-channel fine timing engine (candidate A/B/C)
-        -> bubble-resistant encoder
-        -> code-density / bin-width calibration
-        -> continuous or periodic PVT calibration
-        -> coarse timestamp counter (10 MHz-derived)
-        -> per-channel timestamp combiner
-        -> UTC-referenced timing subsystem (qualify / lock / holdover flags)
-        -> internal logger
-        -> Ethernet: configurable UDP + SNMPv3
+```mermaid
+flowchart TB
+  subgraph Meas["Measurement inputs"]
+    SMA1["16× SMA 50 Ω"]
+  end
+  subgraph FE["Per-channel front-end"]
+    PROT["Protection / Z0"]
+    CMP["ADCMP582"]
+    PECL["PECL term. to VCCO−2 V"]
+    XL["DS15BR401"]
+  end
+  subgraph Ref10["Frequency reference"]
+    M10["External 10 MHz 50 Ω"]
+    COND10["Low-jitter conditioner"]
+    LMK["LMK05318B"]
+  end
+  subgraph RefPPS["Time reference"]
+    PPS["External 1 PPS 50 Ω"]
+    CONDP["Matched conditioner"]
+  end
+  subgraph FPGA["Kintex-7 FPGA"]
+    LVDS["LVDS inputs"]
+    TDC["Fine TDC\n(multichain or MSWU-inspired)"]
+    CAL["Calibration"]
+    COMB["Coarse/fine combiner"]
+    UTC["UTC aligner\nSET_UTC_EPOCH_ON_NEXT_PPS"]
+    LOG["Internal logger"]
+  end
+  subgraph Net["Ethernet"]
+    UDP["Configurable UDP"]
+    SNMP["SNMPv3"]
+  end
+  subgraph PWR["Power"]
+    ACA["AC inlet A"]
+    ACB["AC inlet B"]
+    PSU["Redundant protected supplies"]
+  end
+
+  SMA1 --> PROT --> CMP --> PECL --> XL --> LVDS
+  M10 --> COND10 --> LMK --> FPGA
+  PPS --> CONDP --> LVDS
+  LVDS --> TDC --> CAL --> COMB --> UTC --> LOG
+  LOG --> UDP
+  LOG --> SNMP
+  ACA --> PSU
+  ACB --> PSU
+  PSU --> FE
+  PSU --> Ref10
+  PSU --> FPGA
 ```
 
-### Fine-TDC candidates
+## Electrical / clock / UTC baselines (candidates)
 
-| ID | Candidate | Role |
+| Subsystem | POC candidate | Doc |
 | --- | --- | --- |
-| A | Parallel multi-chain FPGA tapped delay line | Current baseline to *test* |
-| B | Wave Union / multisampling TDC | High-upside alternative |
-| C | Hybrid multi-chain + Wave Union | Highest 12-month implementation risk |
-| Aux | DDMTD | Periodic-clock characterisation only |
+| Measurement front-end | ADCMP582 → PECL term. → DS15BR401 → Kintex-7 LVDS | [frontend-electrical-baseline.md](analysis/frontend-electrical-baseline.md) |
+| Direct PECL→LVDS_25 @ VCCO=2.5 V | Optional optimization; **not** baseline | same |
+| 10 MHz clocking | LMK05318B; external 10 MHz authority; ~250 MHz FPGA clock plan TBD | [reference-clock-architecture.md](analysis/reference-clock-architecture.md) |
+| UTC epoch | `SET_UTC_EPOCH_ON_NEXT_PPS`; NTP/PTP label-only | [utc-timestamp-architecture.md](analysis/utc-timestamp-architecture.md) |
 
-DDMTD must not be assumed to replace the event TDC. Measurement inputs are 1 PPS
-events (S5).
+## Fine-TDC candidates (no Vivado-only winner)
 
-### What is intentionally not specified here
+| ID | Candidate | Local structural note |
+| --- | --- | --- |
+| A | Parallel multi-chain FPGA TDL | Round 7 16ch: 13669 slices (53.92%), WNS +3.045 ns |
+| B | MSWU-inspired structural surrogate | Round 9 16ch: 2935 slices (11.58%), WNS +0.162 ns; WU pulse not validated |
+| C | Hybrid | Highest 12-month implementation risk |
+| Aux | DDMTD | Periodic characterisation only |
 
-Carry-chain tap maps, encoder polynomials, and device-specific placement recipes
-stay in RTL modules and, if needed, in gitignored `docs/ip/private-notes.md`.
-Tracked docs describe interfaces and calibration *roles*, not a copyable layout.
+## Frozen local FPGA evidence (structural only)
 
-## Clocking concept
-
-- External 10 MHz (S1/S2) is the frequency reference to be qualified.
-- External 1 PPS (S3/S4) is the UTC epoch.
-- Coarse counter width is an arithmetic problem (see coarse+fine simulation).
-- Meeting 20 ps over intervals up to 1 s is a **reference stability** problem
-  (first-order `delta_t = y * tau`; NIST SP 1065 / IEEE 1139 once data exist),
-  not a bit-width problem. See [analysis/reference-stability.md](analysis/reference-stability.md).
-
-## Channel concept
-
-Preferred: 16 simultaneous independently timestamped channels (S7, S15).
-Alternate: switching, including hot switching, with an explicit settle budget.
-No channel sharing of a single TDC is assumed until the trade study and
-resource estimates (after a device is selected) say otherwise.
+See [vivado-baseline-decision.md](analysis/vivado-baseline-decision.md) and
+`docs/evidence/vivado_kintex7_*`.
 
 ## Data path
 
 Every record carries UTC/coarse context, channel, fine time, sequence, quality
 bits, calibration version, and an integrity field. UDP is the export path;
 the internal log is the measurement of record (S10, S13).
-
-## Families and first Vivado baseline
-
-Kintex-7 / CARRY4 with **8 parallel chains per channel** is the first synthesis
-branch ([analysis/vivado-baseline-decision.md](analysis/vivado-baseline-decision.md)).
-Vivado 2026.1 mapped and fully routed 1 / 4 / 8 / 16 channels at 64
-CARRY4/chain on XC7K160T (16×64: 8192 CARRY4, 10,980 slices / 43.3%).
-Tracked snapshot: [evidence/vivado_kintex7/](evidence/vivado_kintex7/).
-MSWU type B remains a **high-upside second branch**, not a replacement.
-Any MSWU-B RTL must be original (no copied paper HDL). See
-[analysis/architecture-trade-study.md](analysis/architecture-trade-study.md)
-and [analysis/low-rate-16-channel-datapath.md](analysis/low-rate-16-channel-datapath.md).
-
-Other families remain candidates, not selected: low-end Kintex UltraScale
-(XCKU025 / XCKU035); basic Kintex UltraScale+ (XCKU3P / XCKU5P).
-`scripts/vivado/run_kintex7_baseline.py` discovers an installed Kintex-7 part
-(prefer XC7K160T-2). Reports are RTL/synthesis/implementation evidence, not
-1 ps resolution. The older `tidl_top` Tcl flow still needs `TIDL_PART` if used.

@@ -17,12 +17,14 @@ from tidl_poc.models import (
     coarse_fine,
     code_density,
     error_budget,
+    frontend_electrical,
     frontend_jitter,
     packet_logging,
     parallel_chains,
     pvt,
     reference_stability,
     utc_reference,
+    utc_timestamp,
     mswu_literature,
 )
 
@@ -34,8 +36,10 @@ SIMULATIONS: dict[str, Callable[..., dict]] = {
     "pvt": pvt.run,
     "channel-scaling": channel_scaling.run,
     "frontend-jitter": frontend_jitter.run,
+    "frontend-electrical": frontend_electrical.run,
     "reference-clock": utc_reference.run,
     "reference-stability": reference_stability.run,
+    "utc-timestamp": utc_timestamp.run,
     "packet-logging": packet_logging.run,
     "mswu-literature": mswu_literature.run,
 }

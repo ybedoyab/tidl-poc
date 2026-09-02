@@ -29,16 +29,23 @@ At this stage, classes 1–2 exist. Class 3 is an original Kintex-7 CARRY4 TDL
 plus Vivado 2026.1 OOC matrices on `xc7k160tffg676-2`:
 [docs/evidence/vivado_kintex7/](docs/evidence/vivado_kintex7/) (Round-6 wide-parity),
 [docs/evidence/vivado_kintex7_timing_clean/](docs/evidence/vivado_kintex7_timing_clean/)
-(timing-clean multichain @ 64 CARRY4), and
+(timing-clean multichain @ 64 CARRY4),
 [docs/evidence/vivado_kintex7_mswu_structural/](docs/evidence/vivado_kintex7_mswu_structural/)
-(Round 8 MSWU structural; preencoder LUT=3 superseded) and
+(Round 8 MSWU structural; preencoder LUT=3 superseded), and
 [docs/evidence/vivado_kintex7_mswu_validated/](docs/evidence/vivado_kintex7_mswu_validated/)
 (Round 9 validated MSWU). Resource, placement, and route evidence only — not 1 ps
 resolution, not Wave Union pulse physics, and not physical timing. Multichain
 16×8×64: 8192 CARRY4, 13,669 slices (53.92%), WNS +3.045 ns. MSWU Round 9 16ch:
-800 CARRY4, 2935 slices (11.58%), WNS +0.162 ns (pipelined shared post).
+800 CARRY4, 2935 slices (11.58%), WNS +0.162 ns. Class 4 is an LTspice
 workflow plus local batch results when `scripts/ltspice/run_adcmp580.py`
 succeeds (SPICE/front-end simulation, not lab data). Class 5 does not exist.
+
+POC electrical / clock / UTC candidates (not built hardware):
+[docs/architecture.md](docs/architecture.md),
+[docs/analysis/frontend-electrical-baseline.md](docs/analysis/frontend-electrical-baseline.md),
+[docs/analysis/reference-clock-architecture.md](docs/analysis/reference-clock-architecture.md),
+[docs/analysis/utc-timestamp-architecture.md](docs/analysis/utc-timestamp-architecture.md).
+Submission outline: [docs/competition/submission-outline.md](docs/competition/submission-outline.md).
 
 Claims tracking: [docs/competition/claims-register.md](docs/competition/claims-register.md).
 Requirement matrix: [docs/requirements/S1-S16-evidence-matrix.md](docs/requirements/S1-S16-evidence-matrix.md).

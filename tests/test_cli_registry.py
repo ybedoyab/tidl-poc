@@ -10,8 +10,10 @@ def test_all_planned_simulations_registered():
         "pvt",
         "channel-scaling",
         "frontend-jitter",
+        "frontend-electrical",
         "reference-clock",
         "reference-stability",
+        "utc-timestamp",
         "packet-logging",
         "mswu-literature",
     }

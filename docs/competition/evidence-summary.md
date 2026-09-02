@@ -1,43 +1,46 @@
 # Evidence summary
 
 Project status: **TRL 2**. Not TRL 3. No laboratory validation.
+Submission outline: [submission-outline.md](submission-outline.md).
 
 | Class | Present? |
 | --- | --- |
 | 1 literature evidence | Yes — bibliography and claims register |
 | 2 model-based simulation | Yes — `python -m tidl_poc sim --fast` |
-| 3 RTL/synthesis/implementation | Yes — Kintex-7 CARRY4 TDL. Round 6/7 multichain; Round 8 MSWU structural (`docs/evidence/vivado_kintex7_mswu_structural/`); Round 9 MSWU validated (`docs/evidence/vivado_kintex7_mswu_validated/`). Resource/P&R only; not 1 ps / DNL / SSP / WU pulse physics |
-| 4 SPICE / front-end simulation | Workflow + runner; results only after local LTspice batch |
+| 3 RTL/synthesis/implementation | Yes — multichain R6/R7; MSWU R8 historical + R9 validated. Structural only |
+| 4 SPICE / front-end simulation | ADCMP580-family macromodel workflow + local batch when run |
 | 5 physical POC measurement | No |
+
+## Frozen FPGA structural evidence (not metrology)
+
+| Branch | 16ch | WNS @ 4 ns | Route |
+| --- | --- | --- | --- |
+| Multichain Round 7 | 8192 CARRY4, 32800 FF, 21547 LUT, 13669 slices (53.92%) | +3.045 ns | fully_routed |
+| MSWU validated Round 9 | 800 CARRY4, 13112 FF, 1038 LUT, 2935 slices (11.58%); 16/16 vertical | +0.162 ns | fully_routed |
+
+1ch sequential MSWU preencoder surrogate (R9): 434 LUT (Round 8 LUT=3 superseded).
+**No fine-TDC architecture winner selected from Vivado alone.**
+
+## POC electrical / clock / UTC candidates (not built)
+
+- Front-end: ADCMP582 → PECL → DS15BR401 → Kintex-7 LVDS
+  ([frontend-electrical-baseline.md](../analysis/frontend-electrical-baseline.md)).
+  Direct VCCO=2.5 V → LVDS_25 is optional, not baseline.
+- Reference: LMK05318B ([reference-clock-architecture.md](../analysis/reference-clock-architecture.md)).
+- UTC: `SET_UTC_EPOCH_ON_NEXT_PPS` ([utc-timestamp-architecture.md](../analysis/utc-timestamp-architecture.md)).
 
 ## What the models support (carefully)
 
-- A literature-fitted multi-chain SSP model with a common-mode floor, including
-  sensitivity to the Mao 2022 anchors.
-- Synthetic code-density calibration behaviour on an illustrative TDL.
-- Arithmetic feasibility of ±1 s at 1 ps digital quantization.
-- An error-budget *framework* with precision vs accuracy tables; conservative and
-  stress miss 20 ps; `target_allocation` is a labelled engineering allocation.
-- PVT time-domain calibration state (residual zero at each epoch) for 10–40 °C.
-- 16-channel covariance with shared offsets and a crosstalk sweep.
-- First-order `delta_t = y * tau` reference allocation (not ADEV).
-- Front-end slew/noise contours for 5/10/15 ps allocations.
-- UTC flag state, and UDP vs internal-log reconciliation.
-- Kwiatkowski 2023 transcription plus challenge-rate / naive-resource arithmetic
-  (`mswu-literature`); not MSWU physics and not this FPGA.
-- Kintex-7 structural CARRY4 TDL synthesis/implementation reports
-  ([docs/evidence/vivado_kintex7/](../evidence/vivado_kintex7/) Round 6;
-  [docs/evidence/vivado_kintex7_timing_clean/](../evidence/vivado_kintex7_timing_clean/)
-  Round 7 timing-clean @64;
-  [docs/evidence/vivado_kintex7_mswu_structural/](../evidence/vivado_kintex7_mswu_structural/)
-  MSWU structural surrogate). Multichain 16×8×64: 8192 CARRY4, fully routed,
-  WNS +3.045 ns. MSWU Round 9 validated 16ch: 800 CARRY4, 2935 slices, WNS +0.162 ns
-  (pipelined shared post). Round 8 preencoder LUT=3 superseded. Neither is TDC-bin timing or S14.
+- Literature-fitted multi-chain SSP model (Mao anchors) — not this FPGA.
+- Synthetic calibration, error-budget framework, PVT state, channel covariance,
+  reference flags, UTC epoch arming behaviour, packet vs log reconciliation,
+  datasheet-level PECL/LVDS/translator arithmetic.
+- Kintex-7 structural fit/route for both architecture branches.
 
 ## What they do not support
 
 Any statement that this project has achieved 20 ps precision, 1 ps resolution,
-or UTC-timestamped field data.
+UTC-timestamped field data, or Wave Union physical pulse performance.
 
 Details: [claims-register.md](claims-register.md),
 [S1–S16 matrix](../requirements/S1-S16-evidence-matrix.md).
