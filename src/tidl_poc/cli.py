@@ -111,6 +111,16 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="re-parse outputs/vivado_kintex7_timing_clean; do not launch Vivado",
     )
+    ms = sub.add_parser(
+        "vivado-mswu-structural",
+        help="MSWU-inspired Kintex-7 structural branch (not CI; not a measurement)",
+    )
+    ms.add_argument("--vivado", type=Path, default=None)
+    ms.add_argument("--skip-run", action="store_true")
+    ms.add_argument("--only", type=str, default=None)
+    ms.add_argument("--timeout-s", type=float, default=21600.0)
+    ms.add_argument("--export-only", action="store_true")
+    ms.add_argument("--include-scaling-fallbacks", action="store_true")
     return parser
 
 
@@ -174,5 +184,28 @@ def main(argv: list[str] | None = None) -> int:
         print(f"synth_ok={extra.get('synth_ok')} impl_ok={extra.get('impl_ok')}")
         for n_ch in (1, 4, 8, 16):
             print(compact_resource_line(extra, n_ch, 64))
+        return 0 if extra.get("synth_ok", 0) > 0 else 2
+    if args.cmd == "vivado-mswu-structural":
+        from tidl_poc.vivado.mswu import run as run_mswu
+
+        result = run_mswu(
+            vivado=args.vivado,
+            skip_run=args.skip_run,
+            only=args.only,
+            timeout_s=args.timeout_s,
+            export_only=args.export_only,
+            include_scaling_fallbacks=args.include_scaling_fallbacks,
+        )
+        extra = result["extra"]
+        print("RTL/synthesis/implementation evidence; not a physical measurement")
+        print(f"output_dir={result['output_dir']}")
+        print(f"evidence_dir={result.get('evidence_dir')}")
+        print(f"synth_ok={extra.get('synth_ok')} impl_ok={extra.get('impl_ok')}")
+        for row in extra.get("cases", []):
+            print(
+                f"{row.get('case_id')}: CARRY4 {row.get('mapped_carry4')}/{row.get('expected_carry4')} "
+                f"FF {row.get('mapped_fdre')} LUT {row.get('slice_luts')} slices {row.get('slices')} "
+                f"WNS {row.get('wns_ns')} {row.get('route_status')}"
+            )
         return 0 if extra.get("synth_ok", 0) > 0 else 2
     return 2

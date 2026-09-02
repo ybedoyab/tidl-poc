@@ -11,9 +11,11 @@ not 1 ps resolution, not DNL/SSP/accuracy. No bitstreams. No board pins.
 | --- | --- |
 | `docs/evidence/vivado_kintex7/` | Round-6: 12-case matrix, wide parity observability |
 | `docs/evidence/vivado_kintex7_timing_clean/` | Round-7: 1/4/8/16 @ 64 CARRY4, timing-clean observability |
+| `docs/evidence/vivado_kintex7_mswu_structural/` | MSWU-inspired structural surrogate: 1ch core, 1ch pre-encoder, 16ch low-rate |
 
-Raw Vivado output stays gitignored under `outputs/vivado_kintex7/` and
-`outputs/vivado_kintex7_timing_clean/`.
+Raw Vivado output stays gitignored under `outputs/vivado_kintex7/`,
+`outputs/vivado_kintex7_timing_clean/`, and
+`outputs/vivado_kintex7_mswu_structural/`.
 
 ## Runners
 
@@ -40,7 +42,13 @@ Round-6 negative WNS on larger cases was likely the benchmark-only wide parity
 reduction tree, not the CARRY4 TDL structure. Round-7 removes that tree; see
 the timing-clean evidence README for comparison.
 
-Constraints are unchanged: 4.000 ns `clk`, narrow false paths on `hit[*]` and
-`rst_n` only. No broad false paths. No relaxed clock.
+**MSWU-inspired structural surrogate (second architecture branch):**
 
-Wave Union / MSWU-B is not part of this flow.
+```text
+python -m tidl_poc vivado-mswu-structural
+python -m tidl_poc vivado-mswu-structural --export-only
+```
+
+RTL: `rtl/tdc/kintex7_mswu/`. Cases: `mswu_structural_1ch_core`,
+`mswu_structural_1ch_preencoder`, `mswu_lowrate_16ch_frontends`.
+Wave Union pulse physics is **not** validated by Vivado.

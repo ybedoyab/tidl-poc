@@ -137,13 +137,37 @@ solely from synthesis. Resource and place/route feasibility can lower
 still comes from literature until a physical POC.
 
 The first 1 / 4 / 8 / 16 **multichain** Vivado 2026.1 reports exist
-([docs/evidence/vivado_kintex7/](../evidence/vivado_kintex7/)). A 16-channel,
-eight-chain, 64-CARRY4 topology mapped 8192 CARRY4 and fully routed on
-XC7K160T at 10,980 slices (43.3%). That is structural/resource feasibility
-only. Next: implement **one** MSWU-B single-channel resource-only /
-structural branch (or the closest legally original approximation), then
-compare resource use and implementation risk. Do not freeze TDL length as
+([docs/evidence/vivado_kintex7/](../evidence/vivado_kintex7/) Round 6;
+[docs/evidence/vivado_kintex7_timing_clean/](../evidence/vivado_kintex7_timing_clean/)
+Round 7). A 16-channel, eight-chain, 64-CARRY4 topology mapped 8192 CARRY4
+and fully routed on XC7K160T at 13,669 slices (53.92% in Round 7). That is
+structural/resource feasibility only.
+
+An **original MSWU-inspired structural branch** now exists
+([docs/evidence/vivado_kintex7_mswu_structural/](../evidence/vivado_kintex7_mswu_structural/),
+RTL in `rtl/tdc/kintex7_mswu/`). HDL is project-authored; Wave Union pulse
+physics is **not** validated by Vivado. Do not freeze TDL length as
 “enough for 1 ps”. Do not pick a branch from these reports alone.
+
+### Local structural comparison (not metrology)
+
+| Architecture | Evidence class | Channels | CARRY4 | FF | LUT | Slices | BRAM | Route | WNS (local) | Metrology claim allowed? |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 8-chain multichain Round 7 | local RTL/synth/impl | 16 | 8192 | 32800 | 21547 | 13669 (53.92%) | 0 | fully_routed | +3.045 ns | **no** — structural only |
+| MSWU structural surrogate 16ch low-rate | local RTL/synth/impl | 16 | 800 | 12835 | 1041 | 3002 (11.84%) | 0 | fully_routed | −1.109 ns | **no** — surrogate; WU pulse not validated |
+| MSWU structural 1ch core | local RTL/synth/impl | 1 | 50 | 801 | 3 | 155 (0.61%) | 0 | fully_routed | +3.536 ns | **no** |
+| MSWU structural 1ch + pre-encoder | local RTL/synth/impl | 1 | 50 | 849 | 3 | 155 (0.61%) | 0 | fully_routed | +3.536 ns | **no** |
+| Kwiatkowski 2023 complete channel | literature | 1 | n/a | 1165 | 2840 | 953 | 21.5 | n/a | n/a | **no** — authors' FPGA, manual P&R |
+| Kwiatkowski 2023 two-channel full | literature | 2 | n/a | 2998 | 6304 | 2184 | 43 | n/a | n/a | **no** |
+
+**Reading:** At 16 channels the MSWU structural surrogate uses far fewer CARRY4,
+FF, LUT, and slices than multichain Round 7, which **lowers resource-risk
+extrapolation** for a single-TDL-per-channel topology. The 16-channel MSWU case
+did **not** meet the 4 ns synchronous benchmark (WNS −1.109 ns) despite full
+route — that is capture/control timing on the benchmark clock, not TDC-bin
+metrology, but it is an implementation-risk signal for the shared-post variant.
+Single-channel MSWU cases met timing. **No architecture selected solely from
+Vivado resource evidence.**
 
 Naive 16 × paper-channel BRAM arithmetic can exceed the XC7K160 total inferred
 from Table 2 percentages. That does **not** prove 16 channels cannot fit.
@@ -173,8 +197,8 @@ only. Details: [vivado-baseline-decision.md](vivado-baseline-decision.md).
   fit the 3U board’s FPGA.
 - A measured front-end already consuming >10 ps RMS, forcing a finer TDC.
 - POC staffing that already includes Wave Union place-and-route expertise.
-- The decision-gate comparison after 1/4/8/16 multichain reports plus one
-  original MSWU-B structural channel.
+- The decision-gate comparison after 1/4/8/16 multichain reports plus the
+  MSWU structural surrogate (done); physical POC metrology still required.
 
 RTL in this repository keeps family-specific carry primitives behind interfaces
 so A/B/C can still be swapped without rewriting the combiner, logger, or UTC

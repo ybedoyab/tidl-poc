@@ -1,0 +1,4 @@
+case_id,channels,include_preencoder,shared_post,expected_carry4,mapped_carry4,expected_capture_ff_min,mapped_fdre,capture_ff_ok,slice_luts,slice_registers,slices,slices_pct,mapped_bram,wns_ns,tns_ns,control_timing_closed,route_status,fully_routed,n_chains_reported,n_vertical_runs,n_scattered_chains,synth_status,impl_status
+mswu_lowrate_16ch_frontends,16,True,True,800,800,12800,12835,True,1041,12835,3002,11.84,0,-1.109,-13.873,False,fully_routed,True,0,0,0,ok,ok
+mswu_structural_1ch_core,1,False,False,50,50,800,801,True,3,801,155,0.61,0,3.536,0.0,True,fully_routed,True,0,0,0,ok,ok
+mswu_structural_1ch_preencoder,1,True,False,50,50,800,849,True,3,801,155,0.61,0,3.536,0.0,True,fully_routed,True,0,0,0,ok,ok

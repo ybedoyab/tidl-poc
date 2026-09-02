@@ -103,5 +103,30 @@ Do **not** choose multichain or MSWU-B solely from synthesis. Resource and
 implementation feasibility can lower 12-month risk. Metrological performance
 still comes from literature until a physical POC.
 
+## MSWU-inspired structural branch (second FPGA architecture)
+
+Original project-authored RTL in `rtl/tdc/kintex7_mswu/`. Informed by
+Kwiatkowski et al. 2023 (Measurement 209, 112510) at the architectural level
+only — HDL is **not** copied from the paper or third parties. Wave Union pulse
+generation is **not** validated by Vivado.
+
+Runner: `python -m tidl_poc vivado-mswu-structural`.
+Tracked snapshot: [docs/evidence/vivado_kintex7_mswu_structural/](../evidence/vivado_kintex7_mswu_structural/).
+
+| case_id | CARRY4 | FF | LUT | Slices | WNS ns | Route | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `mswu_structural_1ch_core` | 50/50 | 801 | 3 | 155 (0.61%) | +3.536 | fully_routed | TDL + 4 capture banks |
+| `mswu_structural_1ch_preencoder` | 50/50 | 849 | 3 | 155 (0.61%) | +3.536 | fully_routed | + MBD=5 pre-encoder surrogate |
+| `mswu_lowrate_16ch_frontends` | 800/800 | 12835 | 1041 | 3002 (11.84%) | −1.109 | fully_routed | 16 independent front-ends; shared low-rate post; **timing not closed** |
+
+Capture FF min: 800/channel (4×200 taps); 12800 @16ch — both met. CARRY4
+formula: 50 per TDL (200 logical taps / 4 CO per CARRY4).
+
+**Structural reading:** MSWU surrogate @16ch uses far fewer slices than
+multichain Round 7 (3002 vs 13669), lowering resource extrapolation risk for
+a single-TDL topology. The 16ch case failed the 4 ns synchronous benchmark;
+that is not metrology but is an implementation-risk flag. Do **not** select
+MSWU-B from these results alone.
+
 See [architecture-trade-study.md](architecture-trade-study.md) and
 `scripts/vivado/README.md`.

@@ -1,0 +1,4 @@
+case_id,channels,mapped_carry4,mapped_fdre,slice_luts,slices,slices_pct,mapped_bram
+mswu_lowrate_16ch_frontends,16,800,12835,1041,3002,11.84,0
+mswu_structural_1ch_core,1,50,801,3,155,0.61,0
+mswu_structural_1ch_preencoder,1,50,849,3,155,0.61,0

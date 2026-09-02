@@ -26,13 +26,16 @@ Every numerical result must be one of:
 5. physical POC measurement
 
 At this stage, classes 1–2 exist. Class 3 is an original Kintex-7 CARRY4 TDL
-plus a Vivado 2026.1 OOC matrix on `xc7k160tffg676-2` (12 synthesis cases;
-6 implemented). Tracked snapshot: [docs/evidence/vivado_kintex7/](docs/evidence/vivado_kintex7/)
-(historical Round-6 wide-parity benchmark) and
+plus Vivado 2026.1 OOC matrices on `xc7k160tffg676-2`:
+[docs/evidence/vivado_kintex7/](docs/evidence/vivado_kintex7/) (Round-6 wide-parity),
 [docs/evidence/vivado_kintex7_timing_clean/](docs/evidence/vivado_kintex7_timing_clean/)
-(timing-clean observability @ 64 CARRY4/channel). Resource, placement, and route
-evidence only — not 1 ps resolution and not physical timing. A 16-channel × 8-chain × 64-CARRY4 topology mapped 8192
-CARRY4 and fully routed using 10,980 slices (43.3%). Class 4 is an LTspice
+(timing-clean multichain @ 64 CARRY4), and
+[docs/evidence/vivado_kintex7_mswu_structural/](docs/evidence/vivado_kintex7_mswu_structural/)
+(MSWU-inspired structural surrogate). Resource, placement, and route evidence
+only — not 1 ps resolution, not Wave Union pulse physics, and not physical
+timing. Multichain 16×8×64: 8192 CARRY4, 13,669 slices (53.92%), WNS +3.045 ns.
+MSWU 16ch low-rate: 800 CARRY4, 3002 slices (11.84%), WNS −1.109 ns (benchmark
+timing not closed). Class 4 is an LTspice workflow plus local batch results when
 workflow plus local batch results when `scripts/ltspice/run_adcmp580.py`
 succeeds (SPICE/front-end simulation, not lab data). Class 5 does not exist.
 
